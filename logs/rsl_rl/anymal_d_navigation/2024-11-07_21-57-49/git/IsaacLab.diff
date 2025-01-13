@@ -1,0 +1,25 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   source/standalone/workflows/sb3/play.py
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/source/standalone/workflows/sb3/play.py b/source/standalone/workflows/sb3/play.py
+index e2690891..d4fb05e8 100644
+--- a/source/standalone/workflows/sb3/play.py
++++ b/source/standalone/workflows/sb3/play.py
+@@ -62,6 +62,7 @@ def main():
+         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
+     )
+     agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
++    print("agent_cfg :", agent_cfg)
+ 
+     # directory for logging into
+     log_root_path = os.path.join("logs", "sb3", args_cli.task)

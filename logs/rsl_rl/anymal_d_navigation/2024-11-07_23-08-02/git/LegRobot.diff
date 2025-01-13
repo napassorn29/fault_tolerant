@@ -1,0 +1,1027 @@
+--- git status ---
+On branch main
+Your branch is ahead of 'origin/main' by 8 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/__init__.py
+	modified:   exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__init__.py
+	modified:   exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/rough_env_cfg.py
+	modified:   exts/extensions/extensions/tasks/locomotion/velocity/mdp/rewards.py
+	modified:   exts/extensions/extensions/tutorials/1.empty_scene.py
+	modified:   exts/extensions/extensions/tutorials/2.spawn_objects.py
+	modified:   exts/extensions/extensions/tutorials/4.interact_objects.py
+	modified:   exts/extensions/extensions/tutorials/5.interact_articulation.py
+	modified:   exts/extensions/extensions/tutorials/5.interact_articulation_quadruped.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/cartpole_env.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/cfg_agent.yaml
+	modified:   exts/extensions/extensions/tutorials/manager_based/flat_env_cfg.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/play.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/quadruped_env.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/run_cartpole_env.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/run_quadruped.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/run_quadruped_env.py
+	modified:   exts/extensions/extensions/tutorials/manager_based/train.py
+	modified:   scripts/list_envs.py
+	modified:   scripts/rsl_rl/play.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	exts/extensions/extensions/tasks/navigation/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/__init__.py b/exts/extensions/extensions/tasks/__init__.py
+index 9a0354d..ff20e80 100644
+--- a/exts/extensions/extensions/tasks/__init__.py
++++ b/exts/extensions/extensions/tasks/__init__.py
+@@ -1,5 +1,6 @@
+ """Package containing task implementations for various robotic environments."""
+ 
++import gymnasium as gym
+ import os
+ import toml
+ 
+diff --git a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__init__.py b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__init__.py
+index ae9e1b4..b20158c 100644
+--- a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__init__.py
++++ b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__init__.py
+@@ -7,7 +7,7 @@ from . import agents, flat_env_cfg, rough_env_cfg
+ ##
+ 
+ gym.register(
+-    id="Template-Isaac-Velocity-Flat-Anymal-D-v0",
++    id="LegRobot-Velocity-Flat-Anymal-D",
+     entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+     disable_env_checker=True,
+     kwargs={
+@@ -17,7 +17,7 @@ gym.register(
+ )
+ 
+ gym.register(
+-    id="Template-Isaac-Velocity-Flat-Anymal-D-Play-v0",
++    id="LegRobot-Velocity-Flat-Anymal-D-Play",
+     entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+     disable_env_checker=True,
+     kwargs={
+@@ -27,7 +27,7 @@ gym.register(
+ )
+ 
+ gym.register(
+-    id="Template-Isaac-Velocity-Rough-Anymal-D-v0",
++    id="LegRobot-Velocity-Rough-Anymal-D",
+     entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+     disable_env_checker=True,
+     kwargs={
+@@ -37,11 +37,11 @@ gym.register(
+ )
+ 
+ gym.register(
+-    id="Template-Isaac-Velocity-Rough-Anymal-D-Play-v0",
++    id="LegRobot-Velocity-Rough-Anymal-D-Play",
+     entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+     disable_env_checker=True,
+     kwargs={
+         "env_cfg_entry_point": rough_env_cfg.AnymalDRoughEnvCfg_PLAY,
+         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:AnymalDRoughPPORunnerCfg",
+     },
+-)
++)
+\ No newline at end of file
+diff --git a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/rough_env_cfg.py b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/rough_env_cfg.py
+index 3fdfaf2..ab35657 100644
+--- a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/rough_env_cfg.py
++++ b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/rough_env_cfg.py
+@@ -7,7 +7,6 @@ from extensions.tasks.locomotion.velocity.velocity_env_cfg import LocomotionVelo
+ ##
+ from omni.isaac.lab_assets.anymal import ANYMAL_D_CFG  # isort: skip
+ 
+-
+ @configclass
+ class AnymalDRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+     def __post_init__(self):
+diff --git a/exts/extensions/extensions/tasks/locomotion/velocity/mdp/rewards.py b/exts/extensions/extensions/tasks/locomotion/velocity/mdp/rewards.py
+index c541441..f1eb66d 100644
+--- a/exts/extensions/extensions/tasks/locomotion/velocity/mdp/rewards.py
++++ b/exts/extensions/extensions/tasks/locomotion/velocity/mdp/rewards.py
+@@ -56,10 +56,12 @@ def feet_air_time_positive_biped(
+     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+     return reward
+ 
++
+ """
+ Position-tracking rewards.
+ """
+ 
++
+ def track_pose_xy(
+     env: ManagerBasedRLEnv, std: float, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+ ) -> torch.Tensor:
+diff --git a/exts/extensions/extensions/tutorials/1.empty_scene.py b/exts/extensions/extensions/tutorials/1.empty_scene.py
+index 556431a..039e7b7 100644
+--- a/exts/extensions/extensions/tutorials/1.empty_scene.py
++++ b/exts/extensions/extensions/tutorials/1.empty_scene.py
+@@ -26,8 +26,7 @@ args_cli = parser.parse_args()
+ app_launcher = AppLauncher(args_cli)
+ simulation_app = app_launcher.app
+ 
+-from omni.isaac.lab.sim import SimulationCfg, SimulationContext    
+-
++from omni.isaac.lab.sim import SimulationCfg, SimulationContext
+ 
+ ##############################################################
+ #
+@@ -35,6 +34,7 @@ from omni.isaac.lab.sim import SimulationCfg, SimulationContext
+ #
+ ##############################################################
+ 
++
+ def main():
+     # Initialize the simulation context
+     sim_cfg = SimulationCfg(dt=0.01)
+@@ -52,8 +52,9 @@ def main():
+         # perform step
+         sim.step()
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
+     # close sim app
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/2.spawn_objects.py b/exts/extensions/extensions/tutorials/2.spawn_objects.py
+index d6a2a60..92fd850 100644
+--- a/exts/extensions/extensions/tutorials/2.spawn_objects.py
++++ b/exts/extensions/extensions/tutorials/2.spawn_objects.py
+@@ -26,18 +26,19 @@ args_cli = parser.parse_args()
+ app_launcher = AppLauncher(args_cli)
+ simulation_app = app_launcher.app
+ 
+-from omni.isaac.lab.sim import SimulationCfg, SimulationContext    
+ import omni.isaac.core.utils.prims as prim_utils
++
+ import omni.isaac.lab.sim as sim_utils
++from omni.isaac.lab.sim import SimulationCfg, SimulationContext
+ from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
+ 
+-
+ ##############################################################
+ #
+ #           function for design scene from asset
+ #
+ ##############################################################
+ 
++
+ def design_scene():
+     # Ground-plane
+     cfg_ground = sim_utils.GroundPlaneCfg()
+@@ -49,7 +50,7 @@ def design_scene():
+         color=(0.75, 0.75, 0.75),
+     )
+     cfg_light_distant.func("/World/lightDistant", cfg_light_distant, translation=(1, 0, 10))
+-    
++
+     # create a new xform prim for all objects to be spawned under
+     prim_utils.create_prim("/World/Objects", "Xform")
+ 
+@@ -91,6 +92,7 @@ def design_scene():
+ #
+ ##############################################################
+ 
++
+ def main():
+     # Initialize the simulation context
+     sim_cfg = SimulationCfg(dt=0.01)
+@@ -107,14 +109,15 @@ def main():
+     sim.reset()
+     # Now we are ready!
+     print("[INFO]: Setup complete...")
+-    
++
+     # Simulate physics
+     while simulation_app.is_running():
+         # perform step
+         sim.step()
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
+     # close sim app
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/4.interact_objects.py b/exts/extensions/extensions/tutorials/4.interact_objects.py
+index f4c1f7d..6e23078 100644
+--- a/exts/extensions/extensions/tutorials/4.interact_objects.py
++++ b/exts/extensions/extensions/tutorials/4.interact_objects.py
+@@ -38,13 +38,13 @@ import omni.isaac.lab.utils.math as math_utils
+ from omni.isaac.lab.assets import RigidObject, RigidObjectCfg
+ from omni.isaac.lab.sim import SimulationContext
+ 
+-
+ ##############################################################
+ #
+ #           Design the scene Function
+ #
+ ##############################################################
+ 
++
+ def design_scene():
+     """Designs the scene."""
+     # Ground-plane
+@@ -86,6 +86,7 @@ def design_scene():
+ #
+ ##############################################################
+ 
++
+ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, RigidObject], origins: torch.Tensor):
+     """Runs the simulation loop."""
+     # Extract scene entities
+@@ -136,6 +137,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, RigidObj
+ #
+ ##############################################################
+ 
++
+ def main():
+     """Main function."""
+     # Load kit helper
+@@ -153,6 +155,7 @@ def main():
+     # Run the simulator
+     run_simulator(sim, scene_entities, scene_origins)
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
+diff --git a/exts/extensions/extensions/tutorials/5.interact_articulation.py b/exts/extensions/extensions/tutorials/5.interact_articulation.py
+index d9f6453..9959042 100644
+--- a/exts/extensions/extensions/tutorials/5.interact_articulation.py
++++ b/exts/extensions/extensions/tutorials/5.interact_articulation.py
+@@ -35,9 +35,8 @@ import omni.isaac.core.utils.prims as prim_utils
+ 
+ import omni.isaac.lab.sim as sim_utils
+ import omni.isaac.lab.utils.math as math_utils
+-from omni.isaac.lab.assets import RigidObject, RigidObjectCfg
++from omni.isaac.lab.assets import Articulation, RigidObject, RigidObjectCfg
+ from omni.isaac.lab.sim import SimulationContext
+-from omni.isaac.lab.assets import Articulation
+ 
+ ##
+ # Pre-defined configs
+@@ -51,7 +50,8 @@ from omni.isaac.lab_assets import CARTPOLE_CFG  # isort:skip
+ #
+ ##############################################################
+ 
+-def design_scene()-> tuple[dict, list[list[float]]]:
++
++def design_scene() -> tuple[dict, list[list[float]]]:
+     """Designs the scene."""
+     # Ground-plane
+     cfg = sim_utils.GroundPlaneCfg()
+@@ -84,6 +84,7 @@ def design_scene()-> tuple[dict, list[list[float]]]:
+ #
+ ##############################################################
+ 
++
+ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articulation], origins: torch.Tensor):
+     """Runs the simulation loop."""
+     # Extract scene entities
+@@ -135,6 +136,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
+ #
+ ##############################################################
+ 
++
+ def main():
+     """Main function."""
+     # Load kit helper
+@@ -152,8 +154,9 @@ def main():
+     # Run the simulator
+     run_simulator(sim, scene_entities, scene_origins)
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
+     # close sim app
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/5.interact_articulation_quadruped.py b/exts/extensions/extensions/tutorials/5.interact_articulation_quadruped.py
+index 7ff82d7..aa0065a 100644
+--- a/exts/extensions/extensions/tutorials/5.interact_articulation_quadruped.py
++++ b/exts/extensions/extensions/tutorials/5.interact_articulation_quadruped.py
+@@ -1,4 +1,4 @@
+-# interacting with an articulation for quadruped robot 
++# interacting with an articulation for quadruped robot
+ """
+     This script use for interacting with an articulation for quadruped robot in Isaac Sim.
+ 
+@@ -35,9 +35,8 @@ import omni.isaac.core.utils.prims as prim_utils
+ 
+ import omni.isaac.lab.sim as sim_utils
+ import omni.isaac.lab.utils.math as math_utils
+-from omni.isaac.lab.assets import RigidObject, RigidObjectCfg
++from omni.isaac.lab.assets import Articulation, RigidObject, RigidObjectCfg
+ from omni.isaac.lab.sim import SimulationContext
+-from omni.isaac.lab.assets import Articulation
+ 
+ ##
+ # Pre-defined configs
+@@ -52,7 +51,8 @@ from omni.isaac.lab_assets.anymal import ANYMAL_B_CFG, ANYMAL_C_CFG, ANYMAL_D_CF
+ #
+ ##############################################################
+ 
+-def design_scene()-> tuple[dict, list[list[float]]]:
++
++def design_scene() -> tuple[dict, list[list[float]]]:
+     """Designs the scene."""
+     # Ground-plane
+     cfg = sim_utils.GroundPlaneCfg()
+@@ -89,6 +89,7 @@ def design_scene()-> tuple[dict, list[list[float]]]:
+ #
+ ##############################################################
+ 
++
+ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articulation], origins: torch.Tensor):
+     """Runs the simulation loop."""
+     # Extract scene entities
+@@ -140,6 +141,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
+ #
+ ##############################################################
+ 
++
+ def main():
+     """Main function."""
+     # Load kit helper
+@@ -157,8 +159,9 @@ def main():
+     # Run the simulator
+     run_simulator(sim, scene_entities, scene_origins)
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
+     # close sim app
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/manager_based/cartpole_env.py b/exts/extensions/extensions/tutorials/manager_based/cartpole_env.py
+index 850541a..a945e7a 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/cartpole_env.py
++++ b/exts/extensions/extensions/tutorials/manager_based/cartpole_env.py
+@@ -6,6 +6,7 @@
+ import math
+ 
+ import omni.isaac.lab.sim as sim_utils
++import omni.isaac.lab_tasks.manager_based.classic.cartpole.mdp as mdp
+ from omni.isaac.lab.assets import ArticulationCfg, AssetBaseCfg
+ from omni.isaac.lab.envs import ManagerBasedRLEnvCfg
+ from omni.isaac.lab.managers import EventTermCfg as EventTerm
+@@ -17,8 +18,6 @@ from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
+ from omni.isaac.lab.scene import InteractiveSceneCfg
+ from omni.isaac.lab.utils import configclass
+ 
+-import omni.isaac.lab_tasks.manager_based.classic.cartpole.mdp as mdp
+-
+ ##
+ # Pre-defined configs
+ ##
+@@ -178,4 +177,4 @@ class CartpoleEnvCfg(ManagerBasedRLEnvCfg):
+         self.viewer.eye = (8.0, 0.0, 5.0)
+         # simulation settings
+         self.sim.dt = 1 / 120
+-        self.sim.render_interval = self.decimation
+\ No newline at end of file
++        self.sim.render_interval = self.decimation
+diff --git a/exts/extensions/extensions/tutorials/manager_based/cfg_agent.yaml b/exts/extensions/extensions/tutorials/manager_based/cfg_agent.yaml
+index a559932..5d2c4fc 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/cfg_agent.yaml
++++ b/exts/extensions/extensions/tutorials/manager_based/cfg_agent.yaml
+@@ -1,5 +1,5 @@
+ agent_cfg:
+-  'seed': 42, 
++  'seed': 42,
+   'n_timesteps': 1000000.0
+   'policy': 'MlpPolicy'
+   'n_steps': 16
+@@ -11,8 +11,8 @@ agent_cfg:
+   'learning_rate': 0.0003
+   'clip_range': 0.2
+   'policy_kwargs': 'dict( activation_fn=nn.ELU, net_arch=[32, 32], squash_output=False, )'
+-  'vf_coef': 1.0, 
++  'vf_coef': 1.0,
+   'max_grad_norm': 1.0
+   'normalize_input': True
+   'clip_obs': 10.0
+-  'device': 'cuda:0'
+\ No newline at end of file
++  'device': 'cuda:0'
+diff --git a/exts/extensions/extensions/tutorials/manager_based/flat_env_cfg.py b/exts/extensions/extensions/tutorials/manager_based/flat_env_cfg.py
+index 166611d..566e7e6 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/flat_env_cfg.py
++++ b/exts/extensions/extensions/tutorials/manager_based/flat_env_cfg.py
+@@ -3,17 +3,19 @@
+ #
+ # SPDX-License-Identifier: BSD-3-Clause
+ 
+-from omni.isaac.lab.utils import configclass
++import argparse
++
++from quadruped_env import LocomotionVelocityEnvCfg
+ 
++from omni.isaac.lab.utils import configclass
+ from omni.isaac.lab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg
+ 
+ ##
+ # Pre-defined configs
+ ##
+ from omni.isaac.lab_assets.anymal import ANYMAL_D_CFG  # isort: skip
+-from quadruped_env import LocomotionVelocityEnvCfg
+ 
+-import argparse
++
+ parser = argparse.ArgumentParser(description="Tutorial on running the cartpole RL environment.")
+ parser.add_argument("--num_envs", type=int, default=16, help="Number of environments to spawn.")
+ 
+diff --git a/exts/extensions/extensions/tutorials/manager_based/play.py b/exts/extensions/extensions/tutorials/manager_based/play.py
+index 53efe60..bfcc00d 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/play.py
++++ b/exts/extensions/extensions/tutorials/manager_based/play.py
+@@ -9,7 +9,7 @@
+ 
+ ##############################################################
+ #
+-#           Setting argparse arguments 
++#           Setting argparse arguments
+ #
+ ##############################################################
+ 
+@@ -62,24 +62,23 @@ import numpy as np
+ import os
+ import torch
+ 
++# Import the AnymalDFlatEnvCfg from your custom task file
++from flat_env_cfg import AnymalDFlatEnvCfg
+ from stable_baselines3 import PPO
+ from stable_baselines3.common.vec_env import VecNormalize
+ 
+-from omni.isaac.lab.utils.dict import print_dict
+ from omni.isaac.lab.envs import ManagerBasedRLEnv
+-
++from omni.isaac.lab.utils.dict import print_dict
+ from omni.isaac.lab_tasks.utils.parse_cfg import get_checkpoint_path, load_cfg_from_registry, parse_env_cfg
+ from omni.isaac.lab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
+ 
+-# Import the AnymalDFlatEnvCfg from your custom task file
+-from flat_env_cfg import AnymalDFlatEnvCfg
+-
+ ##############################################################
+ #
+ #           Main Function
+ #
+ ##############################################################
+ 
++
+ def main():
+     """Play with a stable-baselines agent."""
+     # Configure environment and agent
+@@ -95,26 +94,25 @@ def main():
+     # }
+ 
+     agent_cfg = {
+-        'seed': 42, 
+-        'n_timesteps': 1000000.0, 
+-        'policy': 'MlpPolicy', 
+-        'n_steps': 16, 
+-        'batch_size': 4096, 
+-        'gae_lambda': 0.95, 
+-        'gamma': 0.99, 
+-        'n_epochs': 20, 
+-        'ent_coef': 0.01, 
+-        'learning_rate': 0.0003, 
+-        'clip_range': 0.2, 
+-        'policy_kwargs': 
+-        'dict( activation_fn=nn.ELU, net_arch=[32, 32], squash_output=False, )', 
+-        'vf_coef': 1.0, 
+-        'max_grad_norm': 1.0,
++        "seed": 42,
++        "n_timesteps": 1000000.0,
++        "policy": "MlpPolicy",
++        "n_steps": 16,
++        "batch_size": 4096,
++        "gae_lambda": 0.95,
++        "gamma": 0.99,
++        "n_epochs": 20,
++        "ent_coef": 0.01,
++        "learning_rate": 0.0003,
++        "clip_range": 0.2,
++        "policy_kwargs": "dict( activation_fn=nn.ELU, net_arch=[32, 32], squash_output=False, )",
++        "vf_coef": 1.0,
++        "max_grad_norm": 1.0,
+         "normalize_input": True,
+-        "clip_obs": 10.0, 
+-        'device': 'cuda:0'
++        "clip_obs": 10.0,
++        "device": "cuda:0",
+     }
+-    
++
+     # Define logging paths and checkpoint paths
+     log_root_path = os.path.join("logs", "sb3", "AnymalDFlatEnv")
+     log_root_path = os.path.abspath(log_root_path)
+@@ -162,7 +160,7 @@ def main():
+ 
+     # Load the agent directly with PPO.load()
+     print(f"Loading checkpoint from: {checkpoint_path}")
+-    
++
+     # Loading the checkpoint without using torch.load
+     agent = PPO.load(checkpoint_path, env=env)
+ 
+@@ -182,6 +180,7 @@ def main():
+     # Close environment and simulation app
+     env.close()
+ 
++
+ if __name__ == "__main__":
+     main()
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/manager_based/quadruped_env.py b/exts/extensions/extensions/tutorials/manager_based/quadruped_env.py
+index cfaa298..1cecd6f 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/quadruped_env.py
++++ b/exts/extensions/extensions/tutorials/manager_based/quadruped_env.py
+@@ -16,6 +16,7 @@ import math
+ from dataclasses import MISSING
+ 
+ import omni.isaac.lab.sim as sim_utils
++import omni.isaac.lab_tasks.manager_based.locomotion.velocity.mdp as mdp
+ from omni.isaac.lab.assets import ArticulationCfg, AssetBaseCfg
+ from omni.isaac.lab.envs import ManagerBasedRLEnvCfg
+ from omni.isaac.lab.managers import CurriculumTermCfg as CurrTerm
+@@ -32,8 +33,6 @@ from omni.isaac.lab.utils import configclass
+ from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
+ from omni.isaac.lab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+ 
+-import omni.isaac.lab_tasks.manager_based.locomotion.velocity.mdp as mdp
+-
+ ##
+ # Pre-defined configs
+ ##
+@@ -44,20 +43,17 @@ from omni.isaac.lab_assets.anymal import ANYMAL_D_CFG  # isort: skip
+ # Scene definition
+ ##
+ 
++
+ @configclass
+ class QuadrupedSceneCfg(InteractiveSceneCfg):
+-    """ Configuration for a quadruped robot scene. """
++    """Configuration for a quadruped robot scene."""
+ 
+     # terrain
+     terrain = TerrainImporterCfg(
+-        prim_path = "/World/ground",
+-        terrain_type = "plane",
+-        collision_group = -1,
+-        physics_material=sim_utils.RigidBodyMaterialCfg(
+-            static_friction=1.0, 
+-            dynamic_friction=1.0, 
+-            restitution=0.0
+-        ),
++        prim_path="/World/ground",
++        terrain_type="plane",
++        collision_group=-1,
++        physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=1.0, dynamic_friction=1.0, restitution=0.0),
+         debug_vis=False,
+     )
+ 
+@@ -70,9 +66,7 @@ class QuadrupedSceneCfg(InteractiveSceneCfg):
+     # contact_forces = ContactSensorCfg(
+     #     prim_path="{ENV_REGEX_NS}/Robot/.*_FOOT", update_period=0.0, history_length=6, debug_vis=True
+     # )
+-    contact_forces = ContactSensorCfg(
+-        prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True
+-    )
++    contact_forces = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True)
+ 
+     # lights
+     light = AssetBaseCfg(
+@@ -85,6 +79,7 @@ class QuadrupedSceneCfg(InteractiveSceneCfg):
+ # MDP settings
+ ##
+ 
++
+ @configclass
+ class CommandsCfg:
+     """Command specifications for the MDP."""
+@@ -135,9 +130,9 @@ class ObservationsCfg:
+         #     noise=Unoise(n_min=-0.1, n_max=0.1),
+         #     clip=(-1.0, 1.0),
+         # )
+-        
++
+         # contact_forces_plot = ObsTerm(
+-            
++
+         # )
+ 
+         def __post_init__(self):
+diff --git a/exts/extensions/extensions/tutorials/manager_based/run_cartpole_env.py b/exts/extensions/extensions/tutorials/manager_based/run_cartpole_env.py
+index 71736ef..1d2dcec 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/run_cartpole_env.py
++++ b/exts/extensions/extensions/tutorials/manager_based/run_cartpole_env.py
+@@ -28,10 +28,10 @@ simulation_app = app_launcher.app
+ 
+ import torch
+ 
+-from omni.isaac.lab.envs import ManagerBasedRLEnv
+-
+ from cartpole_env import CartpoleEnvCfg
+ 
++from omni.isaac.lab.envs import ManagerBasedRLEnv
++
+ 
+ def main():
+     """Main function."""
+@@ -68,4 +68,4 @@ if __name__ == "__main__":
+     # run the main function
+     main()
+     # close sim app
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/exts/extensions/extensions/tutorials/manager_based/run_quadruped.py b/exts/extensions/extensions/tutorials/manager_based/run_quadruped.py
+index 0da2937..2740eb9 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/run_quadruped.py
++++ b/exts/extensions/extensions/tutorials/manager_based/run_quadruped.py
+@@ -7,8 +7,8 @@
+ 
+ """Launch Isaac Sim Simulator first."""
+ 
+-import numpy as np
+ import argparse
++import numpy as np
+ 
+ from omni.isaac.lab.app import AppLauncher
+ 
+@@ -29,18 +29,18 @@ simulation_app = app_launcher.app
+ 
+ import torch
+ 
+-from omni.isaac.lab.envs import ManagerBasedRLEnv
+-
+-from quadruped_env import LocomotionVelocityRoughEnvCfg
+-
+ # import rospy
+ import rclpy
+-from rclpy.node import Node
+ from geometry_msgs.msg import Vector3
++from quadruped_env import LocomotionVelocityRoughEnvCfg
++from rclpy.node import Node
++
++from omni.isaac.lab.envs import ManagerBasedRLEnv
++
+ 
+ class SensorRunner(Node):
+     def __init__(self):
+-        super().__init__('run_quadruped_env')
++        super().__init__("run_quadruped_env")
+         self.pub_contact_base = self.create_publisher(Vector3, "/isaac_contact/base", 10)
+         self.pub_contact_LF = self.create_publisher(Vector3, "/isaac_contact/LF_foot", 10)
+         self.pub_contact_LH = self.create_publisher(Vector3, "/isaac_contact/LH_foot", 10)
+@@ -58,13 +58,14 @@ class SensorRunner(Node):
+                 self.pub_contact_LH,
+                 self.pub_contact_RF,
+                 self.pub_contact_RH,
+-            ]
++            ],
+         ):
+             msg = Vector3()
+             msg.x, msg.y, msg.z = data
+             pub.publish(msg)
+             self.get_logger().info(f"Published {name} contact force: {data}")
+ 
++
+ def main(args=None):
+     """Main function."""
+     rclpy.init(args=args)
+@@ -94,14 +95,14 @@ def main(args=None):
+             # step the environment
+             obs, rew, terminated, truncated, info = env.step(joint_efforts)
+             print("Received max contact force of: ", torch.max(env.scene["contact_forces"].data.net_forces_w).item())
+-            
++
+             # Extract contact forces
+             contact_forces = [
+-                env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),   # base
+-                env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),   # LF_foot
+-                env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),   # LH_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),  # base
++                env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),  # LF_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),  # LH_foot
+                 env.scene["contact_forces"].data.net_forces_w[0, 12].cpu().tolist(),  # RF_foot
+-                env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist()   # RH_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist(),  # RH_foot
+             ]
+ 
+             # Publish contact sensor data
+diff --git a/exts/extensions/extensions/tutorials/manager_based/run_quadruped_env.py b/exts/extensions/extensions/tutorials/manager_based/run_quadruped_env.py
+index 1edcf28..69ec6d0 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/run_quadruped_env.py
++++ b/exts/extensions/extensions/tutorials/manager_based/run_quadruped_env.py
+@@ -7,8 +7,8 @@
+ 
+ """Launch Isaac Sim Simulator first."""
+ 
+-import numpy as np
+ import argparse
++import numpy as np
+ 
+ from omni.isaac.lab.app import AppLauncher
+ 
+@@ -29,18 +29,18 @@ simulation_app = app_launcher.app
+ 
+ import torch
+ 
+-from omni.isaac.lab.envs import ManagerBasedRLEnv
+-
+-from quadruped_env import LocomotionVelocityEnvCfg
+-
+ # import rospy
+ import rclpy
+-from rclpy.node import Node
+ from geometry_msgs.msg import Vector3
++from quadruped_env import LocomotionVelocityEnvCfg
++from rclpy.node import Node
++
++from omni.isaac.lab.envs import ManagerBasedRLEnv
++
+ 
+ class SensorRunner(Node):
+     def __init__(self):
+-        super().__init__('run_quadruped_env')
++        super().__init__("run_quadruped_env")
+         self.pub_contact_base = self.create_publisher(Vector3, "/isaac_contact/base", 10)
+         self.pub_contact_LF = self.create_publisher(Vector3, "/isaac_contact/LF_foot", 10)
+         self.pub_contact_LH = self.create_publisher(Vector3, "/isaac_contact/LH_foot", 10)
+@@ -58,13 +58,14 @@ class SensorRunner(Node):
+                 self.pub_contact_LH,
+                 self.pub_contact_RF,
+                 self.pub_contact_RH,
+-            ]
++            ],
+         ):
+             msg = Vector3()
+             msg.x, msg.y, msg.z = data
+             pub.publish(msg)
+             self.get_logger().info(f"Published {name} contact force: {data}")
+ 
++
+ def main(args=None):
+     """Main function."""
+     rclpy.init(args=args)
+@@ -94,14 +95,14 @@ def main(args=None):
+             # step the environment
+             obs, rew, terminated, truncated, info = env.step(joint_efforts)
+             print("Received max contact force of: ", torch.max(env.scene["contact_forces"].data.net_forces_w).item())
+-            
++
+             # Extract contact forces
+             contact_forces = [
+-                env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),   # base
+-                env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),   # LF_foot
+-                env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),   # LH_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),  # base
++                env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),  # LF_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),  # LH_foot
+                 env.scene["contact_forces"].data.net_forces_w[0, 12].cpu().tolist(),  # RF_foot
+-                env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist()   # RH_foot
++                env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist(),  # RH_foot
+             ]
+ 
+             # Publish contact sensor data
+@@ -122,4 +123,4 @@ def main(args=None):
+ 
+ if __name__ == "__main__":
+     # run the main function
+-    main()
+\ No newline at end of file
++    main()
+diff --git a/exts/extensions/extensions/tutorials/manager_based/train.py b/exts/extensions/extensions/tutorials/manager_based/train.py
+index e4d1dcf..b098112 100644
+--- a/exts/extensions/extensions/tutorials/manager_based/train.py
++++ b/exts/extensions/extensions/tutorials/manager_based/train.py
+@@ -9,7 +9,7 @@
+ 
+ ##############################################################
+ #
+-#           Setting argparse arguments 
++#           Setting argparse arguments
+ #
+ ##############################################################
+ 
+@@ -56,26 +56,25 @@ import os
+ import random
+ from datetime import datetime
+ 
++# Import the AnymalDFlatEnvCfg from your custom task file
++from flat_env_cfg import AnymalDFlatEnvCfg
+ from stable_baselines3 import PPO
+ from stable_baselines3.common.callbacks import CheckpointCallback
+ from stable_baselines3.common.logger import configure
+ from stable_baselines3.common.vec_env import VecNormalize
+ 
++from omni.isaac.lab.envs import ManagerBasedRLEnv
+ from omni.isaac.lab.utils.dict import print_dict
+ from omni.isaac.lab.utils.io import dump_pickle, dump_yaml
+-from omni.isaac.lab.envs import ManagerBasedRLEnv
+-
+ from omni.isaac.lab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
+ 
+-# Import the AnymalDFlatEnvCfg from your custom task file
+-from flat_env_cfg import AnymalDFlatEnvCfg
+-
+ ##############################################################
+ #
+ #           Main Function
+ #
+ ##############################################################
+ 
++
+ def main():
+     """Train with stable-baselines agent using AnymalDFlatEnvCfg."""
+     # Set up environment configuration
+@@ -87,9 +86,7 @@ def main():
+     env_cfg.seed = random.randint(0, 10000) if args_cli.seed == -1 else args_cli.seed
+ 
+     # Define training steps
+-    n_timesteps = (
+-        args_cli.max_iterations * env_cfg.scene.num_envs if args_cli.max_iterations else 1000000
+-    )
++    n_timesteps = args_cli.max_iterations * env_cfg.scene.num_envs if args_cli.max_iterations else 1000000
+ 
+     # Logging directory
+     log_dir = os.path.join("logs", "sb3", "AnymalDFlatEnv", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+@@ -123,9 +120,7 @@ def main():
+     agent.set_logger(new_logger)
+ 
+     # Set up callback for checkpointing
+-    checkpoint_callback = CheckpointCallback(
+-        save_freq=1000, save_path=log_dir, name_prefix="model", verbose=2
+-    )
++    checkpoint_callback = CheckpointCallback(save_freq=1000, save_path=log_dir, name_prefix="model", verbose=2)
+ 
+     # Train the agent
+     agent.learn(total_timesteps=n_timesteps, callback=checkpoint_callback)
+@@ -134,6 +129,7 @@ def main():
+     # Close the environment
+     env.close()
+ 
++
+ if __name__ == "__main__":
+     main()
+-    simulation_app.close()
+\ No newline at end of file
++    simulation_app.close()
+diff --git a/scripts/list_envs.py b/scripts/list_envs.py
+index 9b8670e..bddff65 100644
+--- a/scripts/list_envs.py
++++ b/scripts/list_envs.py
+@@ -37,7 +37,7 @@ def main():
+     index = 0
+     # acquire all Isaac environments names
+     for task_spec in gym.registry.values():
+-        if "Template-" in task_spec.id:
++        if "LegRobot-" in task_spec.id:
+             # add details to table
+             table.add_row([index + 1, task_spec.id, task_spec.entry_point, task_spec.kwargs["env_cfg_entry_point"]])
+             # increment count
+diff --git a/scripts/rsl_rl/play.py b/scripts/rsl_rl/play.py
+index 7b16672..bed57c7 100644
+--- a/scripts/rsl_rl/play.py
++++ b/scripts/rsl_rl/play.py
+@@ -18,6 +18,9 @@ parser.add_argument(
+ )
+ parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
++parser.add_argument("--pose_x", type=int, default=None, help="Config position x.")
++parser.add_argument("--pose_y", type=int, default=None, help="Config position y.")
++
+ # append RSL-RL cli arguments
+ cli_args.add_rsl_rl_args(parser)
+ # append AppLauncher cli args
+@@ -36,9 +39,16 @@ simulation_app = app_launcher.app
+ import gymnasium as gym
+ import os
+ import torch
++import math
++import omni.isaac.lab_tasks.manager_based.navigation.mdp as mdp
+ 
++# import rclpy
++import rclpy
++from geometry_msgs.msg import Vector3
++from rclpy.node import Node
+ from rsl_rl.runners import OnPolicyRunner
+ 
++from omni.isaac.lab.assets import RigidObject
+ from omni.isaac.lab.envs import DirectMARLEnv, multi_agent_to_single_agent
+ from omni.isaac.lab.utils.dict import print_dict
+ from omni.isaac.lab_tasks.utils import get_checkpoint_path, parse_env_cfg
+@@ -52,14 +62,10 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
+ # Import extensions to set up environment tasks
+ import extensions.tasks  # noqa: F401
+ 
+-# import rclpy
+-import rclpy
+-from rclpy.node import Node
+-from geometry_msgs.msg import Vector3
+ 
+ class SensorRunner(Node):
+     def __init__(self):
+-        super().__init__('run_quadruped_env')
++        super().__init__("run_quadruped_env")
+         self.pub_contact_base = self.create_publisher(Vector3, "/isaac_contact/base", 10)
+         self.pub_contact_LF = self.create_publisher(Vector3, "/isaac_contact/LF_foot", 10)
+         self.pub_contact_LH = self.create_publisher(Vector3, "/isaac_contact/LH_foot", 10)
+@@ -77,13 +83,14 @@ class SensorRunner(Node):
+                 self.pub_contact_LH,
+                 self.pub_contact_RF,
+                 self.pub_contact_RH,
+-            ]
++            ],
+         ):
+             msg = Vector3()
+             msg.x, msg.y, msg.z = data
+             pub.publish(msg)
+             # self.get_logger().info(f"Published {name} contact force: {data}")
+ 
++
+ def main(args=None):
+     """Play with RSL-RL agent."""
+     rclpy.init(args=args)
+@@ -94,6 +101,19 @@ def main(args=None):
+     )
+     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
+ 
++    if args_cli.pose_x is not None and args_cli.pose_y is not None:
++        env_cfg.commands.pose_command = mdp.UniformPose2dCommandCfg(
++            asset_name="robot",
++            simple_heading=False,
++            resampling_time_range=(8.0, 8.0),
++            debug_vis=True,
++            ranges=mdp.UniformPose2dCommandCfg.Ranges(
++                pos_x=(args_cli.pose_x, args_cli.pose_x),  # Set fixed x position
++                pos_y=(args_cli.pose_y, args_cli.pose_y),  # Set fixed y position
++                heading=(-math.pi, math.pi)
++            ),
++        )
++
+     # specify directory for logging experiments
+     log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
+     log_root_path = os.path.abspath(log_root_path)
+@@ -156,21 +176,24 @@ def main(args=None):
+ 
+             # Extract contact forces
+             contact_forces = [
+-                env.env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),   # base
+-                env.env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),   # LF_foot
+-                env.env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),   # LH_foot
++                env.env.scene["contact_forces"].data.net_forces_w[0, 0].cpu().tolist(),  # base
++                env.env.scene["contact_forces"].data.net_forces_w[0, 4].cpu().tolist(),  # LF_foot
++                env.env.scene["contact_forces"].data.net_forces_w[0, 8].cpu().tolist(),  # LH_foot
+                 env.env.scene["contact_forces"].data.net_forces_w[0, 12].cpu().tolist(),  # RF_foot
+-                env.env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist()   # RH_foot
++                env.env.scene["contact_forces"].data.net_forces_w[0, 16].cpu().tolist(),  # RH_foot
+             ]
+             # Publish contact sensor data
+             sensor_node.publish_sensor_data(contact_forces)
+ 
++            asset: RigidObject = env.env.scene["robot"]
++            print(asset.data.body_pos_w)
++
+         if args_cli.video:
+             timestep += 1
+             # Exit the play loop after recording one video
+             if timestep == args_cli.video_length:
+                 break
+-        
++
+         # Spin the ROS node to handle callbacks
+         rclpy.spin_once(sensor_node, timeout_sec=0)
+ 
+@@ -180,6 +203,7 @@ def main(args=None):
+     sensor_node.destroy_node()
+     rclpy.shutdown()
+ 
++
+ if __name__ == "__main__":
+     # run the main function
+     main()
