@@ -124,65 +124,41 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     ##
     ## ==================== setting joint locked ====================
     ##
-    robot = env.env.scene["robot"] 
 
-    # jointpos = robot._data.joint_pos
-    # jointname = robot._data.joint_names
-
-    # # Modify joint limits after loading the robot
-    # robot = env.env.scene["robot"]  # Ensure the correct access path
-    # if robot is not None:
-    #     # Get the device of the robot data
-    #     device = robot._data.joint_limits.device  # Ensure this is the correct device reference
-
-    #     # Randomly select and lock one joint for each agent
-    #     num_agents = 4096  # Assuming _num_envs gives the number of agents
-    #     joint_names = robot.joint_names
-    #     num_joints = len(joint_names)
-
-    #     # Generate random joint indices for locking
-    #     locked_joint_indices = torch.randint(0, num_joints, (num_agents,))
-
-    #     for agent_id in range(num_agents):
-    #         joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
-    #         joint_name = joint_names[joint_index]  # Get the joint name for this index
-
-    #         # Define the lock position using the joint position of this agent
-    #         lock_position = jointpos[agent_id, joint_index]  # Retrieve the agent-specific joint position
-    #         limits = (lock_position, lock_position)  # Min and max are the same for locking
-
-    #         # Prepare limits as a tensor or array
-    #         limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
-
-    #         # Convert env_ids to a tensor
-    #         env_id_tensor = torch.tensor([agent_id], dtype=torch.int32, device=device)
-
-    #         # Write joint limits to the simulation for the specific joint of this agent
-    #         robot.write_joint_limits_to_sim(
-    #             limits=limit_tensor,  # Provide the limits tensor
-    #             joint_ids=[joint_index],  # Specify the joint index
-    #             env_ids=env_id_tensor  # Apply to the specific agent
-    #         )
-
-    #         print(f"[INFO] Locked joint {joint_name} (index {joint_index}) for agent {agent_id} at position {lock_position}.")
+    # Modify joint limits after loading the robot
+    robot = env.env.scene["robot"]  # Ensure the correct access path
 
     # Access joint positions and joint names
     jointpos = robot._data.joint_pos
     jointname = robot._data.joint_names
 
-    # Modify joint limits after loading the robot
-    robot = env.env.scene["robot"]  # Ensure the correct access path
+    # Mapping joint indices to their respective ranges
+    joint_lock_ranges = {
+        0: [-0.7854, 0.6109],
+        1: [-0.7854, 0.6109],
+        2: [-0.6109, 0.7854],
+        3: [-0.6109, 0.7854],
+        4: [-9.4248, 9.4248],
+        5: [-9.4248, 9.4248],
+        6: [-9.4248, 9.4248],
+        7: [-9.4248, 9.4248],
+        8: [-9.4248, 9.4248],
+        9: [-9.4248, 9.4248],
+        10: [-9.4248, 9.4248],
+        11: [-9.4248, 9.4248]
+    }
+
     if robot is not None:
         # Get the device of the robot data
         device = robot._data.joint_limits.device  # Ensure this is the correct device reference
 
         # Randomly select and lock one joint for each agent
-        num_agents = 8192  # Assuming _num_envs gives the number of agents
+        num_agents = 4096  # Assuming _num_envs gives the number of agents
         joint_names = robot.joint_names
         num_joints = len(joint_names)
 
         # Generate random joint indices for locking (0 to num_joints+1)
-        locked_joint_indices = torch.randint(0, num_joints + 3, (num_agents,))
+        locked_joint_indices = torch.randint(0, num_joints + 2, (num_agents,))
 
         for agent_id in range(num_agents):
             joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
@@ -190,11 +166,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if joint_index < num_joints:  # Only lock joints if the index is valid
                 joint_name = joint_names[joint_index]  # Get the joint name for this index
 
-                # Define the lock position using the joint position of this agent
-                lock_position = jointpos[agent_id, joint_index]  # Retrieve the agent-specific joint position
-                limits = (lock_position, lock_position)  # Min and max are the same for locking
+                # Check if the joint index has a specified range
+                if joint_index in joint_lock_ranges:  # Use +1 if the mapping is 1-based
+                    lock_range = joint_lock_ranges[joint_index]
+                    lock_position = torch.empty(1).uniform_(*lock_range).item()  # Random position within range
+                else:
+                    # Default to the current position if no range is specified
+                    lock_position = jointpos[agent_id, joint_index]
 
-                # Prepare limits as a tensor or array
+                # Prepare limits
+                limits = (lock_position, lock_position)  # Min and max are the same for locking
                 limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
 
                 # Convert env_ids to a tensor
@@ -212,45 +193,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 # Log or skip the agent if the random index is out of range
                 print(f"[INFO] Skipping agent {agent_id}, random joint index {joint_index} is out of range.")
 
-
-
-    # Modify joint limits after loading the robot
-    # robot = env.env.scene["robot"]  # Ensure the correct access path
-    # if robot is not None:
-    #     # print("======================= in joint limit ===================")
-    #     # Define joint limits as a dictionary with joint names and their (min, max) limits
-    #     joint_limits = {
-    #         "LF_HAA": (jointpos[:, 0], jointpos[:, 0]),  # Replace with your joint name and limits (min, max)
-    #         "LF_HFE": (jointpos[:, 4], jointpos[:, 4]),  # Add other joints as needed
-    #         # "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
-    #     }
-
-    #     # Get the device of the robot data
-    #     device = robot._data.joint_limits.device  # Ensure this is the correct device reference
-
-    #     # Loop through the joint limits and apply them
-    #     # for joint_name, limits in joint_limits.items():
-    #     for i in range(1):
-    #         joint_name = random.choice(jointname)
-    #         if joint_name in robot.joint_names:  # Check if the joint exists in the robot
-    #             joint_index = robot.joint_names.index(joint_name)  # Find the index of the joint
-                
-    #             limits = (jointpos[:, joint_index], jointpos[:, joint_index])
-    #             # Prepare limits as a tensor or array
-    #             limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
-                
-    #             # Write joint limits to the simulation
-    #             robot.write_joint_limits_to_sim(
-    #                 limits=limit_tensor,  # Provide the limits tensor
-    #                 joint_ids=[joint_index],  # Specify the joint index
-    #                 env_ids=None  # Apply to all environments
-    #             )
-    #             print(f"[INFO] Updated joint limits for {joint_name}: {limits}")
-    #         else:
-    #             print(f"[WARNING] Joint {joint_name} not found in robot.joint_names.")
-            # jointname.remove(joint_name)
-        # else:
-        #     print("[ERROR] Robot object not found in the environment.")
 
     # create runner from rsl-rl
     runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)

@@ -224,7 +224,7 @@ class RewardsCfg:
         func=mdp.track_lin_vel_xy_exp, weight=1.1, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     )
     track_ang_vel_z_exp = RewTerm(
-        func=mdp.track_ang_vel_z_exp, weight=0.56, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
+        func=mdp.track_ang_vel_z_exp, weight=0.5, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     )
     # -- penalties
     lin_vel_z_l2 = RewTerm(func=mdp.lin_vel_z_l2, weight=-2.0)
@@ -234,7 +234,7 @@ class RewardsCfg:
     action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
     feet_air_time = RewTerm(
         func=mdp.feet_air_time,
-        weight=0.15,
+        weight=0.125,
         params={
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*FOOT"),
             "command_name": "base_velocity",
@@ -258,9 +258,9 @@ class RewardsCfg:
     # Height of robot reward term configuration
     base_height_toggle = RewTerm(
         func=mdp.base_height_toggle,
-        weight=0.95,  # Set weight to 1.0 since it's now a toggle
+        weight=1.0,  # Set weight to 1.0 since it's now a toggle
         params={
-            "target_height": 0.46,  # Adjust this if needed
+            "target_height": 0.44,  # Adjust this if needed
             # "asset_cfg": SceneEntityCfg("robot"),
         },
     )
@@ -297,8 +297,8 @@ class LocomotionVelocityRoughRecoveryEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the locomotion velocity-tracking environment."""
 
     # Scene settings
-    # scene: MySceneCfg = MySceneCfg(num_envs=4096, env_spacing=2.5)
-    scene: MySceneCfg = MySceneCfg(num_envs=8192, env_spacing=2.5)
+    scene: MySceneCfg = MySceneCfg(num_envs=4096, env_spacing=2.5)
+    # scene: MySceneCfg = MySceneCfg(num_envs=8192, env_spacing=2.5)
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()

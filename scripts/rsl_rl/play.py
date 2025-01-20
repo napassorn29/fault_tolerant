@@ -305,6 +305,7 @@ def main(args=None):
                         # "LF_HAA": (jointpos[:, 0], jointpos[:, 0]),  # Replace with your joint name and limits (min, max)
                         # "LF_HFE": (jointpos[:, 4], jointpos[:, 4]),  # Add other joints as needed
                         "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
+                        # "RF_KFE": (jointpos[:, 10], jointpos[:, 10])
                     }
 
                     # Get the device of the robot data
@@ -387,6 +388,7 @@ def main(args=None):
             # height = torch.max(env.env.scene["height_scanner"].data.ray_hits_w[..., -1]).item()
             # print("timestep :", sensor_node.time_step ,"height :", height)
             print("timestep :", sensor_node.time_step , "height :", robot.data.root_link_pos_w[:, 2])
+            print("joint limit :", robot.data.default_joint_limits)
             # asset: RigidObject = env.env.scene["robot"]
             # print(asset.data.body_pos_w)
             
