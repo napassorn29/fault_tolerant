@@ -122,3 +122,66 @@ def base_height_toggle(
     reward_toggle = (current_height >= target_height).float()
 
     return reward_toggle
+
+
+"""
+Step reward for get up and walk
+"""
+
+def step_reward(
+    env: ManagerBasedRLEnv,
+    target_height: float,
+    std: float,
+    command_name: str,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    sensor_cfg: SceneEntityCfg | None = None,
+    weight_lin_vel: float = 1.1,
+    weight_height_toggle: float = 1.0,
+) -> torch.Tensor:
+    """Combined reward function based on height condition.
+
+    Args:
+        env: Manager-based RL environment.
+        target_height: Target height for the asset.
+        std: Standard deviation for the XY velocity task reward.
+        command_name: Name of the command to track.
+        asset_cfg: Configuration for the asset entity (default: robot).
+        sensor_cfg: Optional sensor configuration for height adjustment.
+        weight_lin_vel: Weight for the XY velocity reward.
+        weight_height_toggle: Weight for the height toggle reward.
+
+    Returns:
+        torch.Tensor: Combined reward value.
+    """
+    # Extract the asset for height calculations
+    asset: RigidObject = env.scene[asset_cfg.name]
+
+    # Adjust the target height if a sensor is provided
+    if sensor_cfg is not None:
+        sensor: RayCaster = env.scene[sensor_cfg.name]
+        adjusted_target_height = target_height + sensor.data.pos_w[:, 2]
+    else:
+        adjusted_target_height = target_height
+
+    # Get the current height of the asset
+    current_height = asset.data.root_link_pos_w[:, 2]
+
+    # Calculate rewards
+    height_toggle_reward = weight_height_toggle * (current_height < adjusted_target_height).float()
+
+    lin_vel_reward = weight_lin_vel * torch.exp(
+        -torch.sum(
+            torch.square(
+                env.command_manager.get_command(command_name)[:, :2]
+                - asset.data.root_com_lin_vel_b[:, :2]
+            ),
+            dim=1,
+        ) / std**2
+    )
+
+    # Combine rewards based on the height condition
+    combined_reward = torch.where(
+        current_height >= adjusted_target_height, lin_vel_reward, height_toggle_reward
+    )
+
+    return combined_reward
