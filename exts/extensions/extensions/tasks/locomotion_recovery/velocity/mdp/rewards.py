@@ -135,7 +135,8 @@ def step_reward(
     command_name: str,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     sensor_cfg: SceneEntityCfg | None = None,
-    weight_lin_vel: float = 1.1,
+    weight_lin_vel: float = 1.15,
+    weight_exp_height: float = 1.0,
     weight_height_toggle: float = 1.0,
 ) -> torch.Tensor:
     """Combined reward function based on height condition.
@@ -166,22 +167,28 @@ def step_reward(
     # Get the current height of the asset
     current_height = asset.data.root_link_pos_w[:, 2]
 
-    # Calculate rewards
-    height_toggle_reward = weight_height_toggle * (current_height < adjusted_target_height).float()
-
-    lin_vel_reward = weight_lin_vel * torch.exp(
-        -torch.sum(
-            torch.square(
-                env.command_manager.get_command(command_name)[:, :2]
-                - asset.data.root_com_lin_vel_b[:, :2]
-            ),
-            dim=1,
-        ) / std**2
+    # Calculate velocity reward
+    lin_vel_error = torch.sum(
+        torch.square(
+            env.command_manager.get_command(command_name)[:, :2]
+            - asset.data.root_com_lin_vel_b[:, :2]
+        ),
+        dim=1,
     )
+    lin_vel_reward = torch.exp(-lin_vel_error / std**2) * weight_lin_vel
+
+    # Calculate exponential height reward
+    height_difference = adjusted_target_height - current_height
+    exp_height_reward = (1 - torch.exp(-torch.square(height_difference))) * weight_exp_height
+
+    # Calculate height toggle reward
+    height_toggle_reward = weight_height_toggle * (current_height < adjusted_target_height).float()
 
     # Combine rewards based on the height condition
     combined_reward = torch.where(
-        current_height >= adjusted_target_height, lin_vel_reward, height_toggle_reward
+        current_height >= adjusted_target_height,
+        lin_vel_reward * exp_height_reward,  # Multiply rewards when condition is met
+        height_toggle_reward
     )
 
     return combined_reward

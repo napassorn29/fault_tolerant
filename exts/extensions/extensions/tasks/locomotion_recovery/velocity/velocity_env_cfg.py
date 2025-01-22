@@ -271,8 +271,9 @@ class RewardsCfg:
             "target_height": 0.44,  # Example target height
             "std": math.sqrt(0.25),  # Standard deviation for lin vel reward
             "command_name": "base_velocity",  # Command name for velocity tracking
-            "weight_lin_vel": 1.1,  # Weight for the lin vel reward
-            "weight_height_toggle": 1.0,  # Weight for the height toggle reward
+            "weight_lin_vel" : 1.15,
+            "weight_exp_height" : 1.0,
+            "weight_height_toggle" : 1.0,
             # Optional: "sensor_cfg": SceneEntityCfg("sensor_name")
         },
     )

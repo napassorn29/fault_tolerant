@@ -1,0 +1,36 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-21_15-32-46/
+	outputs/2025-01-21/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+index 122ee9e..5f02e12 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+index b50dad1..1738fa8 100644
+--- a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
++++ b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+@@ -179,6 +179,8 @@ def step_reward(
+         ) / std**2
+     )
+ 
++    lin_vel_reward = lin_vel_reward + (height_toggle_reward*0.8)
++
+     # Combine rewards based on the height condition
+     combined_reward = torch.where(
+         current_height >= adjusted_target_height, lin_vel_reward, height_toggle_reward
