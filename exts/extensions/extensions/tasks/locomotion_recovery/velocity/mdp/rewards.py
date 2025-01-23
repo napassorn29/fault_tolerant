@@ -124,9 +124,6 @@ def base_height_toggle(
     return reward_toggle
 
 
-
-
-
 """
 Step reward for get up and walk
 """
@@ -195,82 +192,3 @@ def step_reward(
     )
 
     return combined_reward
-
-
-def vel_xy_toggle(
-    env: ManagerBasedRLEnv,
-    target_height: float,
-    std: float,
-    command_name: str,
-    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-) -> torch.Tensor:
-    """
-    Reward function 1: Uses track_lin_vel_xy_exp if current height >= target height,
-    otherwise sets reward to 0.
-
-    Args:
-        env: Manager-based RL environment.
-        target_height: Target height for the asset.
-        std: Standard deviation for the XY velocity task reward.
-        command_name: Name of the command to track.
-        asset_cfg: Configuration for the asset entity (default: robot).
-
-    Returns:
-        torch.Tensor: Reward value.
-    """
-    # Extract the asset for height calculations
-    asset: RigidObject = env.scene[asset_cfg.name]
-
-    # Get the current height of the asset
-    current_height = asset.data.root_link_pos_w[:, 2]
-
-    # Calculate velocity reward
-    lin_vel_error = torch.sum(
-        torch.square(
-            env.command_manager.get_command(command_name)[:, :2]
-            - asset.data.root_com_lin_vel_b[:, :2]
-        ),
-        dim=1,
-    )
-    lin_vel_reward = torch.exp(-lin_vel_error / std**2)
-
-    # Apply condition based on height
-    reward = torch.where(current_height >= target_height, lin_vel_reward, torch.zeros_like(lin_vel_reward))
-
-    return reward
-
-
-
-def base_height_exp_toggle(
-    env: ManagerBasedRLEnv,
-    target_height: float,
-    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    weight_exp_height: float = 1.0,
-) -> torch.Tensor:
-    """
-    Reward function 2: Uses 1 * exp_height_reward if current height >= target height,
-    otherwise sets reward to 0.
-
-    Args:
-        env: Manager-based RL environment.
-        target_height: Target height for the asset.
-        asset_cfg: Configuration for the asset entity (default: robot).
-        exp_scale: Scale factor for exponential height reward.
-
-    Returns:
-        torch.Tensor: Reward value.
-    """
-    # Extract the asset for height calculations
-    asset: RigidObject = env.scene[asset_cfg.name]
-
-    # Get the current height of the asset
-    current_height = asset.data.root_link_pos_w[:, 2]
-
-    # Calculate exponential height reward
-    height_difference = target_height - current_height
-    exp_height_reward = (1 - torch.exp(-torch.square(height_difference))) * weight_exp_height
-
-    # Apply condition based on height
-    reward = torch.where(current_height >= target_height, 0.5 + exp_height_reward, torch.zeros_like(exp_height_reward))
-
-    return reward
