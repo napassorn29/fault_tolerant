@@ -409,20 +409,20 @@ def main(args=None):
                     #     "LH_KFE": (1.882218837738037, 1.882218837738037),
                     # }
 
-                    # joint_limits = {
-                    #     "LF_HAA": (0, 0),
-                    #     "LH_HAA": (0, 0),
-                    #     "RF_HAA": (0, 0),
-                    #     "RH_HAA": (0, 0),
-                    #     "LF_HFE": (0, 0),
-                    #     "LH_HFE": (0, 0),
-                    #     "RF_HFE": (0, 0),
-                    #     "RH_HFE": (0, 0),
-                    #     "LF_KFE": (0, 0),
-                    #     "LH_KFE": (0, 0),
-                    #     "RF_KFE": (0, 0),
-                    #     "LH_KFE": (0, 0),
-                    # }
+                    joint_limits = {
+                        "LF_HAA": (0, 0),
+                        "LH_HAA": (0, 0),
+                        "RF_HAA": (0, 0),
+                        "RH_HAA": (0, 0),
+                        "LF_HFE": (0, 0),
+                        "LH_HFE": (0, 0),
+                        "RF_HFE": (0, 0),
+                        "RH_HFE": (0, 0),
+                        "LF_KFE": (0, 0),
+                        "LH_KFE": (0, 0),
+                        "RF_KFE": (0, 0),
+                        "LH_KFE": (0, 0),
+                    }
 
                     # Get the device of the robot data
                     device = robot._data.joint_limits.device  # Ensure this is the correct device reference
