@@ -223,6 +223,15 @@ class RewardsCfg:
     # track_lin_vel_xy_exp = RewTerm(
     #     func=mdp.track_lin_vel_xy_exp, weight=1.1, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     # )
+    vel_xy_toggle = RewTerm(
+        func=mdp.vel_xy_toggle, 
+        weight=1.1, 
+        params={
+            "target_height": 0.42,
+            "command_name": "base_velocity", 
+            "std": math.sqrt(0.25)
+            }
+    )
     track_ang_vel_z_exp = RewTerm(
         func=mdp.track_ang_vel_z_exp, weight=0.5, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     )
@@ -256,25 +265,35 @@ class RewardsCfg:
     #     },
     # )
     # Height of robot reward term configuration
-    base_height_toggle = RewTerm(
-        func=mdp.base_height_toggle,
+    # base_height_toggle = RewTerm(
+    #     func=mdp.base_height_toggle,
+    #     weight=1.0,  # Set weight to 1.0 since it's now a toggle
+    #     params={
+    #         "target_height": 0.44,  # Adjust this if needed
+    #         # "asset_cfg": SceneEntityCfg("robot"),
+    #     },
+    # )
+    # step_reward = RewTerm(
+    #     func=mdp.step_reward,
+    #     weight=1.0,  # Adjust weight if needed
+    #     params={
+    #         "target_height": 0.44,  # Example target height
+    #         "std": math.sqrt(0.25),  # Standard deviation for lin vel reward
+    #         "command_name": "base_velocity",  # Command name for velocity tracking
+    #         "weight_lin_vel" : 1.15,
+    #         "weight_exp_height" : 1.0,
+    #         "weight_height_toggle" : 1.0,
+    #         # Optional: "sensor_cfg": SceneEntityCfg("sensor_name")
+    #     },
+    # )
+
+    base_height_exp_toggle = RewTerm(
+        func=mdp.base_height_exp_toggle,
         weight=1.0,  # Set weight to 1.0 since it's now a toggle
         params={
-            "target_height": 0.44,  # Adjust this if needed
+            "target_height": 0.47,  # Adjust this if needed
             # "asset_cfg": SceneEntityCfg("robot"),
-        },
-    )
-    step_reward = RewTerm(
-        func=mdp.step_reward,
-        weight=1.0,  # Adjust weight if needed
-        params={
-            "target_height": 0.44,  # Example target height
-            "std": math.sqrt(0.25),  # Standard deviation for lin vel reward
-            "command_name": "base_velocity",  # Command name for velocity tracking
-            "weight_lin_vel" : 1.15,
-            "weight_exp_height" : 1.0,
-            "weight_height_toggle" : 1.0,
-            # Optional: "sensor_cfg": SceneEntityCfg("sensor_name")
+            "weight_exp_height": 1.0
         },
     )
 
