@@ -291,7 +291,7 @@ def main(args=None):
             # jointpos_p4 = jointpos_p3
             # jointpos_p5 = jointpos_p4
 
-            fault_time = 250
+            fault_time = 1
             if sensor_node.time_step == fault_time:
                 jointpos = robot._data.joint_pos
                 jointname = robot._data.joint_names
