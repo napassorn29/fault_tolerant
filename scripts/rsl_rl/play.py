@@ -387,7 +387,7 @@ def main(args=None):
             print("obs :", obs)
             # height = torch.max(env.env.scene["height_scanner"].data.ray_hits_w[..., -1]).item()
             # print("timestep :", sensor_node.time_step ,"height :", height)
-            print("timestep :", sensor_node.time_step , "height :", robot.data.root_link_pos_w[:, 2])
+            print("timestep :", sensor_node.time_step , "height :", robot.data.root_link_pos_w[:, 2], "gravity_z :", robot.data.projected_gravity_b[:,2], robot.data.projected_gravity_b[:,:2], robot.data.projected_gravity_b[:,:])
             print("joint limit :", robot.data.default_joint_limits)
             # asset: RigidObject = env.env.scene["robot"]
             # print(asset.data.body_pos_w)

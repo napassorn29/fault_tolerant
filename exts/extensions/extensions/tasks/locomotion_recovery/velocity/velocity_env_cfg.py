@@ -289,13 +289,21 @@ class RewardsCfg:
 
     base_height_exp_toggle = RewTerm(
         func=mdp.base_height_exp_toggle,
-        weight=1.0,  # Set weight to 1.0 since it's now a toggle
+        weight=1.75,  # Set weight to 1.0 since it's now a toggle
         params={
             "target_height": 0.47,  # Adjust this if needed
             # "asset_cfg": SceneEntityCfg("robot"),
             "weight_exp_height": 1.0
         },
     )
+
+    upright_orientation = RewTerm(
+    func=mdp.upright_orientation,
+    weight=1.5,
+    params={
+        "epsilon": 0.1,  # Adjust as needed
+    },
+)
 
     # -- optional penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)

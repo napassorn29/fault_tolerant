@@ -271,6 +271,36 @@ def base_height_exp_toggle(
     exp_height_reward = (1 - torch.exp(-torch.square(height_difference))) * weight_exp_height
 
     # Apply condition based on height
-    reward = torch.where(current_height >= target_height, 0.5 + exp_height_reward, torch.zeros_like(exp_height_reward))
+    reward = torch.where(current_height >= target_height, 0.4 + exp_height_reward, torch.zeros_like(exp_height_reward))
+
+    return reward
+
+
+def upright_orientation_reward(
+    env: ManagerBasedRLEnv,
+    epsilon: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """
+    Reward function for upright orientation based on the equation:
+    reward = exp(-(gz + 1)^2 / (2 * epsilon^2))
+
+    Args:
+        env: Manager-based RL environment.
+        epsilon: Scaling factor for the exponential term.
+        asset_cfg: Configuration for the asset entity (default: robot).
+
+    Returns:
+        torch.Tensor: Reward for upright orientation.
+    """
+    # Extract the asset for orientation calculations
+    asset: RigidObject = env.scene[asset_cfg.name]
+
+    # Compute the z-component of the orientation (assumes quaternion orientation is provided)
+    # Orientation as a quaternion (x, y, z, w)
+    g_z = asset.data.projected_gravity_b[:,2]
+
+    # Calculate the reward using the equation
+    reward = torch.exp(-torch.square(g_z + 1) / (2 * epsilon**2))
 
     return reward
