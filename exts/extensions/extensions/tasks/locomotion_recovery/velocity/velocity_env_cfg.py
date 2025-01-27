@@ -225,7 +225,7 @@ class RewardsCfg:
     # )
     vel_xy_toggle = RewTerm(
         func=mdp.vel_xy_toggle, 
-        weight=1.1, 
+        weight=1.0, 
         params={
             "target_height": 0.42,
             "command_name": "base_velocity", 
@@ -289,7 +289,7 @@ class RewardsCfg:
 
     base_height_exp_toggle = RewTerm(
         func=mdp.base_height_exp_toggle,
-        weight=1.75,  # Set weight to 1.0 since it's now a toggle
+        weight=1.4,  # Set weight to 1.0 since it's now a toggle
         params={
             "target_height": 0.47,  # Adjust this if needed
             # "asset_cfg": SceneEntityCfg("robot"),
@@ -299,7 +299,7 @@ class RewardsCfg:
 
     upright_orientation = RewTerm(
     func=mdp.upright_orientation,
-    weight=1.5,
+    weight=1.25,
     params={
         "epsilon": 0.1,  # Adjust as needed
     },

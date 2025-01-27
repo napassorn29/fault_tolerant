@@ -1,0 +1,75 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/
+	outputs/2025-01-24/16-01-47/
+	outputs/2025-01-24/16-02-38/
+	outputs/2025-01-24/16-02-57/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+index ebbbfe6..a76e96d 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+index 0d3c798..6e1fb11 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+index 17642eb..3d293b6 100644
+--- a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
++++ b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+@@ -276,7 +276,7 @@ def base_height_exp_toggle(
+     return reward
+ 
+ 
+-def upright_orientation_reward(
++def upright_orientation(
+     env: ManagerBasedRLEnv,
+     epsilon: float,
+     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+index 62adc6d..d962a85 100644
+--- a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
++++ b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+@@ -225,7 +225,7 @@ class RewardsCfg:
+     # )
+     vel_xy_toggle = RewTerm(
+         func=mdp.vel_xy_toggle, 
+-        weight=1.1, 
++        weight=1.0, 
+         params={
+             "target_height": 0.42,
+             "command_name": "base_velocity", 
+@@ -289,7 +289,7 @@ class RewardsCfg:
+ 
+     base_height_exp_toggle = RewTerm(
+         func=mdp.base_height_exp_toggle,
+-        weight=1.75,  # Set weight to 1.0 since it's now a toggle
++        weight=1.4,  # Set weight to 1.0 since it's now a toggle
+         params={
+             "target_height": 0.47,  # Adjust this if needed
+             # "asset_cfg": SceneEntityCfg("robot"),
+@@ -299,7 +299,7 @@ class RewardsCfg:
+ 
+     upright_orientation = RewTerm(
+     func=mdp.upright_orientation,
+-    weight=1.5,
++    weight=1.25,
+     params={
+         "epsilon": 0.1,  # Adjust as needed
+     },

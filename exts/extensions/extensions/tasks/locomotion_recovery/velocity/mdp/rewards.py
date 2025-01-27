@@ -276,7 +276,7 @@ def base_height_exp_toggle(
     return reward
 
 
-def upright_orientation_reward(
+def upright_orientation(
     env: ManagerBasedRLEnv,
     epsilon: float,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
