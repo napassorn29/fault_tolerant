@@ -596,7 +596,7 @@ def main(args=None):
             # height = torch.max(env.env.scene["height_scanner"].data.ray_hits_w[..., -1]).item()
             # print("timestep :", sensor_node.time_step ,"height :", height)
             print("timestep :", sensor_node.time_step , "height :", robot.data.root_link_pos_w[:, 2])
-            print("joint limit :", robot.data.default_joint_limits)
+            print("joint limit :", robot.data.joint_limits)
             # asset: RigidObject = env.env.scene["robot"]
             # print(asset.data.body_pos_w)
             
