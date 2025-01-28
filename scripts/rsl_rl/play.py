@@ -291,7 +291,7 @@ def main(args=None):
             # jointpos_p4 = jointpos_p3
             # jointpos_p5 = jointpos_p4
 
-            fault_time = 1
+            fault_time = 200
             if sensor_node.time_step == fault_time:
                 jointpos = robot._data.joint_pos
                 jointname = robot._data.joint_names
@@ -304,8 +304,9 @@ def main(args=None):
                     joint_limits = {
                         # "LF_HAA": (jointpos[:, 0], jointpos[:, 0]),  # Replace with your joint name and limits (min, max)
                         # "LF_HFE": (jointpos[:, 4], jointpos[:, 4]),  # Add other joints as needed
-                        "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
+                        # "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
                         # "RF_KFE": (jointpos[:, 10], jointpos[:, 10])
+                        "LH_KFE": (jointpos[:, 8], jointpos[:, 8]),
                     }
 
                     # Get the device of the robot data

@@ -1,0 +1,222 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.onnx
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.pt
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.onnx
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.pt
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.onnx
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.pt
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.onnx
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.pt
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.onnx
+	modified:   logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.pt
+	modified:   scripts/rsl_rl/play.py
+	modified:   scripts/rsl_rl/play_fall.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/2025-01-27_14-40-07_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/2025-01-27_14-41-29_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/2025-01-27_15-03-05_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/2025-01-27_15-03-44_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/2025-01-27_13-05-07_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/2025-01-27_15-14-54_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/2025-01-27_15-27-20_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/2025-01-27_16-08-31_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/2025-01-27_16-12-54_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/2025-01-27_16-25-01_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/2025-01-27_16-25-26_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/2025-01-27_16-31-06_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/2025-01-27_16-31-48_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/2025-01-27_16-32-30_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/2025-01-27_16-44-27_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/2025-01-27_16-45-54_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/2025-01-27_16-47-04_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/2025-01-27_16-48-31_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/2025-01-27_16-53-41_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/2025-01-27_17-13-22_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/2025-01-27_17-15-00_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/2025-01-27_17-23-34_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/2025-01-27_17-24-22_data.csv
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/events.out.tfevents.1737709400.fibo3.345669.0
+	logs/rsl_rl/anymal_d_flat/2025-01-27_18-12-01/
+	outputs/2025-01-27/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+index a76e96df..c317bf38 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc
+index 6e1fb11a..b2eda395 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/__pycache__/rewards.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+index 3d293b64..96a53e7b 100644
+--- a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
++++ b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/mdp/rewards.py
+@@ -303,4 +303,69 @@ def upright_orientation(
+     # Calculate the reward using the equation
+     reward = torch.exp(-torch.square(g_z + 1) / (2 * epsilon**2))
+ 
+-    return reward
+\ No newline at end of file
++    return reward
++
++
++# def joint_limit_proximity_penalty(
++#     env: ManagerBasedRLEnv,
++#     penalty: float = 1.0,
++#     proximity_threshold: float = 0.2,
++#     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
++# ) -> torch.Tensor:
++#     """
++#     Penalizes the robot as joint positions approach their limits (min or max) within a proximity threshold.
++
++#     Args:
++#         env: Manager-based RL environment.
++#         joint_limits: A tensor of shape (num_joints, 2), where each row is [min_limit, max_limit].
++#         penalty_scale: Scaling factor for the penalty (default: 1.0).
++#         proximity_threshold: Threshold distance near the joint limits for penalty application (default: 0.2).
++#         asset_cfg: Configuration for the asset entity (default: robot).
++
++#     Returns:
++#         torch.Tensor: A tensor of penalties for each environment instance.
++#     """
++#     # Extract the asset for joint position calculations
++#     asset: RigidObject = env.scene[asset_cfg.name]
++
++#     # Get the current joint positions of the robot
++#     joint_positions = asset.data.joint_positions  # Shape: (batch_size, num_joints)
++#     joint_limits = asset.data.joint_limits
++
++#     # Separate joint limits into min and max
++#     min_limits, max_limits = joint_limits[:, 0], joint_limits[:, 1]
++
++#     # Calculate proximity to min and max limits
++#     proximity_to_min = torch.clamp(min_limits + proximity_threshold - joint_positions, min=0.0)
++#     proximity_to_max = torch.clamp(joint_positions - (max_limits - proximity_threshold), min=0.0)
++
++#     # Penalize exponentially based on proximity
++#     penalty_min = penalty * torch.exp(-proximity_to_min / proximity_threshold)
++#     penalty_max = penalty * torch.exp(-proximity_to_max / proximity_threshold)
++
++#     # Combine penalties for min and max proximity
++#     total_penalty = torch.sum(penalty_min + penalty_max, dim=1)
++
++#     return -total_penalty
++
++
++
++def joint_limits(
++    env: ManagerBasedRLEnv, 
++    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
++) -> torch.Tensor:
++    """Penalize joint positions if they cross the soft limits.
++
++    This is computed as a sum of the absolute value of the difference between the joint position and the soft limits.
++    """
++    # extract the used quantities (to enable type-hinting)
++    asset: Articulation = env.scene[asset_cfg.name]
++    # compute out of limits constraints
++    out_of_limits = -(
++        asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids, 0]
++    ).clip(max=0.0)
++    out_of_limits += (
++        asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids, 1]
++    ).clip(min=0.0)
++    
++    return torch.sum(out_of_limits, dim=1)
+\ No newline at end of file
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+index d962a857..c02437c1 100644
+--- a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
++++ b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/velocity_env_cfg.py
+@@ -307,7 +307,7 @@ class RewardsCfg:
+ 
+     # -- optional penalties
+     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
+-    dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
++    dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.75)
+ 
+ 
+ @configclass
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.onnx b/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.onnx
+index 9f32b9ae..1e8e63db 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.onnx and b/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.onnx differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.pt b/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.pt
+index 5fbdd005..2524f12e 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.pt and b/logs/rsl_rl/anymal_d_flat/2025-01-16_17-03-07/exported/policy.pt differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.onnx b/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.onnx
+index a0da29f6..01bf5d57 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.onnx and b/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.onnx differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.pt b/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.pt
+index 3e6866f1..8b5d937f 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.pt and b/logs/rsl_rl/anymal_d_flat/2025-01-20_14-58-01/exported/policy.pt differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.onnx b/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.onnx
+index e49cd1a8..1cf8c4d4 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.onnx and b/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.onnx differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.pt b/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.pt
+index bee95dea..05d4edf3 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.pt and b/logs/rsl_rl/anymal_d_flat/2025-01-21_16-29-32/exported/policy.pt differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.onnx b/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.onnx
+index 9487565f..7bf3ddf2 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.onnx and b/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.onnx differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.pt b/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.pt
+index 181107b0..e5d70523 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.pt and b/logs/rsl_rl/anymal_d_flat/2025-01-22_13-47-38/exported/policy.pt differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.onnx b/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.onnx
+index cceee397..d1f69981 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.onnx and b/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.onnx differ
+diff --git a/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.pt b/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.pt
+index 1d3cd91b..ed9659b7 100644
+Binary files a/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.pt and b/logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/exported/policy.pt differ
+diff --git a/scripts/rsl_rl/play.py b/scripts/rsl_rl/play.py
+index 661169db..0a6d33a4 100644
+--- a/scripts/rsl_rl/play.py
++++ b/scripts/rsl_rl/play.py
+@@ -291,7 +291,7 @@ def main(args=None):
+             # jointpos_p4 = jointpos_p3
+             # jointpos_p5 = jointpos_p4
+ 
+-            fault_time = 1
++            fault_time = 200
+             if sensor_node.time_step == fault_time:
+                 jointpos = robot._data.joint_pos
+                 jointname = robot._data.joint_names
+@@ -304,8 +304,9 @@ def main(args=None):
+                     joint_limits = {
+                         # "LF_HAA": (jointpos[:, 0], jointpos[:, 0]),  # Replace with your joint name and limits (min, max)
+                         # "LF_HFE": (jointpos[:, 4], jointpos[:, 4]),  # Add other joints as needed
+-                        "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
++                        # "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
+                         # "RF_KFE": (jointpos[:, 10], jointpos[:, 10])
++                        "LH_KFE": (jointpos[:, 8], jointpos[:, 8]),
+                     }
+ 
+                     # Get the device of the robot data
+diff --git a/scripts/rsl_rl/play_fall.py b/scripts/rsl_rl/play_fall.py
+index 632650e7..d74bb31d 100644
+--- a/scripts/rsl_rl/play_fall.py
++++ b/scripts/rsl_rl/play_fall.py
+@@ -450,7 +450,7 @@ def main(args=None):
+                 else:
+                     print("[ERROR] Robot object not found in the environment.")
+ 
+-            if sensor_node.time_step == 20:
++            if sensor_node.time_step == 5:
+                 jointpos = robot._data.joint_pos
+                 jointname = robot._data.joint_names
+ 

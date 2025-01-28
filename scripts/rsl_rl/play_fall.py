@@ -450,7 +450,7 @@ def main(args=None):
                 else:
                     print("[ERROR] Robot object not found in the environment.")
 
-            if sensor_node.time_step == 20:
+            if sensor_node.time_step == 5:
                 jointpos = robot._data.joint_pos
                 jointname = robot._data.joint_names
 

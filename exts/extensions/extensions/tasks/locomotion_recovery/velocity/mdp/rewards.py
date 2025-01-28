@@ -304,3 +304,68 @@ def upright_orientation(
     reward = torch.exp(-torch.square(g_z + 1) / (2 * epsilon**2))
 
     return reward
+
+
+# def joint_limit_proximity_penalty(
+#     env: ManagerBasedRLEnv,
+#     penalty: float = 1.0,
+#     proximity_threshold: float = 0.2,
+#     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+# ) -> torch.Tensor:
+#     """
+#     Penalizes the robot as joint positions approach their limits (min or max) within a proximity threshold.
+
+#     Args:
+#         env: Manager-based RL environment.
+#         joint_limits: A tensor of shape (num_joints, 2), where each row is [min_limit, max_limit].
+#         penalty_scale: Scaling factor for the penalty (default: 1.0).
+#         proximity_threshold: Threshold distance near the joint limits for penalty application (default: 0.2).
+#         asset_cfg: Configuration for the asset entity (default: robot).
+
+#     Returns:
+#         torch.Tensor: A tensor of penalties for each environment instance.
+#     """
+#     # Extract the asset for joint position calculations
+#     asset: RigidObject = env.scene[asset_cfg.name]
+
+#     # Get the current joint positions of the robot
+#     joint_positions = asset.data.joint_positions  # Shape: (batch_size, num_joints)
+#     joint_limits = asset.data.joint_limits
+
+#     # Separate joint limits into min and max
+#     min_limits, max_limits = joint_limits[:, 0], joint_limits[:, 1]
+
+#     # Calculate proximity to min and max limits
+#     proximity_to_min = torch.clamp(min_limits + proximity_threshold - joint_positions, min=0.0)
+#     proximity_to_max = torch.clamp(joint_positions - (max_limits - proximity_threshold), min=0.0)
+
+#     # Penalize exponentially based on proximity
+#     penalty_min = penalty * torch.exp(-proximity_to_min / proximity_threshold)
+#     penalty_max = penalty * torch.exp(-proximity_to_max / proximity_threshold)
+
+#     # Combine penalties for min and max proximity
+#     total_penalty = torch.sum(penalty_min + penalty_max, dim=1)
+
+#     return -total_penalty
+
+
+
+def joint_limits(
+    env: ManagerBasedRLEnv, 
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """Penalize joint positions if they cross the soft limits.
+
+    This is computed as a sum of the absolute value of the difference between the joint position and the soft limits.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    # compute out of limits constraints
+    out_of_limits = -(
+        asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids, 0]
+    ).clip(max=0.0)
+    out_of_limits += (
+        asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids, 1]
+    ).clip(min=0.0)
+    
+    return torch.sum(out_of_limits, dim=1)
