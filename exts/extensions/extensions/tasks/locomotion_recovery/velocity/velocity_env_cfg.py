@@ -299,7 +299,7 @@ class RewardsCfg:
 
     upright_orientation = RewTerm(
     func=mdp.upright_orientation,
-    weight=1.25,
+    weight=0.25,
     params={
         "epsilon": 0.1,  # Adjust as needed
     },
