@@ -306,7 +306,7 @@ def main(args=None):
                         # "LF_HFE": (jointpos[:, 4], jointpos[:, 4]),  # Add other joints as needed
                         # "LF_KFE": (jointpos[:, 8], jointpos[:, 8]),
                         # "RF_KFE": (jointpos[:, 10], jointpos[:, 10])
-                        "LH_KFE": (jointpos[:, 8], jointpos[:, 8]),
+                        "RH_KFE": (jointpos[:, 11], jointpos[:, 11]),
                     }
 
                     # Get the device of the robot data
