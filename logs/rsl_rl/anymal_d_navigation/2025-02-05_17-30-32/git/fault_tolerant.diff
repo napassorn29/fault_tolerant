@@ -1,0 +1,54 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/events.out.tfevents.1737709400.fibo3.345669.0
+	logs/rsl_rl/anymal_d_flat/2025-01-27_18-12-01/events.out.tfevents.1737976344.fibo3.520974.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-05_17-30-32/
+	outputs/2025-02-05/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+index ca9dc63c..730d7b7c 100644
+Binary files a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+index de15fd64..7042da3d 100644
+--- a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
++++ b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+@@ -117,9 +117,9 @@ class RewardsCfg:
+     # -- task
+     vel_xy_toggle = RewTerm(
+         func=mdp.vel_xy_toggle, 
+-        weight=1.0, 
++        weight=0.95, 
+         params={
+-            "target_height": 0.42,
++            "target_height": 0.45,
+             "command_name": "base_velocity", 
+             "std": math.sqrt(0.25)
+             }
+@@ -150,9 +150,9 @@ class RewardsCfg:
+     )
+     base_height_exp_toggle = RewTerm(
+         func=mdp.base_height_exp_toggle,
+-        weight=1.4,  # Set weight to 1.0 since it's now a toggle
++        weight=1.2,  # Set weight to 1.0 since it's now a toggle
+         params={
+-            "target_height": 0.47,  # Adjust this if needed
++            "target_height": 0.50,  # Adjust this if needed
+             # "asset_cfg": SceneEntityCfg("robot"),
+             "weight_exp_height": 1.0
+         },
