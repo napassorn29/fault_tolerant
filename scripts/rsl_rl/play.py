@@ -52,8 +52,8 @@ import torch
 import math
 import omni.isaac.lab_tasks.manager_based.navigation.mdp as mdp
 
-# import rclpy
 import rclpy
+# import rclpy
 from geometry_msgs.msg import Vector3
 from rclpy.node import Node
 import csv

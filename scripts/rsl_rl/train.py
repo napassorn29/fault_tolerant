@@ -125,73 +125,73 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     ## ==================== setting joint locked ====================
     ##
 
-    # Modify joint limits after loading the robot
-    robot = env.env.scene["robot"]  # Ensure the correct access path
+    # # Modify joint limits after loading the robot
+    # robot = env.env.scene["robot"]  # Ensure the correct access path
 
-    # Access joint positions and joint names
-    jointpos = robot._data.joint_pos
-    jointname = robot._data.joint_names
+    # # Access joint positions and joint names
+    # jointpos = robot._data.joint_pos
+    # jointname = robot._data.joint_names
 
-    # Mapping joint indices to their respective ranges
-    joint_lock_ranges = {
-        0: [-0.7854, 0.6109],
-        1: [-0.7854, 0.6109],
-        2: [-0.6109, 0.7854],
-        3: [-0.6109, 0.7854],
-        4: [-9.4248, 9.4248],
-        5: [-9.4248, 9.4248],
-        6: [-9.4248, 9.4248],
-        7: [-9.4248, 9.4248],
-        8: [-9.4248, 9.4248],
-        9: [-9.4248, 9.4248],
-        10: [-9.4248, 9.4248],
-        11: [-9.4248, 9.4248]
-    }
+    # # Mapping joint indices to their respective ranges
+    # joint_lock_ranges = {
+    #     0: [-0.7854, 0.6109],
+    #     1: [-0.7854, 0.6109],
+    #     2: [-0.6109, 0.7854],
+    #     3: [-0.6109, 0.7854],
+    #     4: [-9.4248, 9.4248],
+    #     5: [-9.4248, 9.4248],
+    #     6: [-9.4248, 9.4248],
+    #     7: [-9.4248, 9.4248],
+    #     8: [-9.4248, 9.4248],
+    #     9: [-9.4248, 9.4248],
+    #     10: [-9.4248, 9.4248],
+    #     11: [-9.4248, 9.4248]
+    # }
 
-    if robot is not None:
-        # Get the device of the robot data
-        device = robot._data.joint_limits.device  # Ensure this is the correct device reference
+    # if robot is not None:
+    #     # Get the device of the robot data
+    #     device = robot._data.joint_limits.device  # Ensure this is the correct device reference
 
-        # Randomly select and lock one joint for each agent
-        num_agents = 4096  # Assuming _num_envs gives the number of agents
-        joint_names = robot.joint_names
-        num_joints = len(joint_names)
+    #     # Randomly select and lock one joint for each agent
+    #     num_agents = 4096  # Assuming _num_envs gives the number of agents
+    #     joint_names = robot.joint_names
+    #     num_joints = len(joint_names)
 
-        # Generate random joint indices for locking (0 to num_joints+1)
-        locked_joint_indices = torch.randint(0, num_joints + 2, (num_agents,))
+    #     # Generate random joint indices for locking (0 to num_joints+1)
+    #     locked_joint_indices = torch.randint(0, num_joints + 2, (num_agents,))
 
-        for agent_id in range(num_agents):
-            joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
+    #     for agent_id in range(num_agents):
+    #         joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
 
-            if joint_index < num_joints:  # Only lock joints if the index is valid
-                joint_name = joint_names[joint_index]  # Get the joint name for this index
+    #         if joint_index < num_joints:  # Only lock joints if the index is valid
+    #             joint_name = joint_names[joint_index]  # Get the joint name for this index
 
-                # Check if the joint index has a specified range
-                if joint_index in joint_lock_ranges:  # Use +1 if the mapping is 1-based
-                    lock_range = joint_lock_ranges[joint_index]
-                    lock_position = torch.empty(1).uniform_(*lock_range).item()  # Random position within range
-                else:
-                    # Default to the current position if no range is specified
-                    lock_position = jointpos[agent_id, joint_index]
+    #             # Check if the joint index has a specified range
+    #             if joint_index in joint_lock_ranges:  # Use +1 if the mapping is 1-based
+    #                 lock_range = joint_lock_ranges[joint_index]
+    #                 lock_position = torch.empty(1).uniform_(*lock_range).item()  # Random position within range
+    #             else:
+    #                 # Default to the current position if no range is specified
+    #                 lock_position = jointpos[agent_id, joint_index]
 
-                # Prepare limits
-                limits = (lock_position, lock_position)  # Min and max are the same for locking
-                limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
+    #             # Prepare limits
+    #             limits = (lock_position, lock_position)  # Min and max are the same for locking
+    #             limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
 
-                # Convert env_ids to a tensor
-                env_id_tensor = torch.tensor([agent_id], dtype=torch.int32, device=device)
+    #             # Convert env_ids to a tensor
+    #             env_id_tensor = torch.tensor([agent_id], dtype=torch.int32, device=device)
 
-                # Write joint limits to the simulation for the specific joint of this agent
-                robot.write_joint_limits_to_sim(
-                    limits=limit_tensor,  # Provide the limits tensor
-                    joint_ids=[joint_index],  # Specify the joint index
-                    env_ids=env_id_tensor  # Apply to the specific agent
-                )
+    #             # Write joint limits to the simulation for the specific joint of this agent
+    #             robot.write_joint_limits_to_sim(
+    #                 limits=limit_tensor,  # Provide the limits tensor
+    #                 joint_ids=[joint_index],  # Specify the joint index
+    #                 env_ids=env_id_tensor  # Apply to the specific agent
+    #             )
 
-                print(f"[INFO] Locked joint {joint_name} (index {joint_index}) for agent {agent_id} at position {lock_position}.")
-            else:
-                # Log or skip the agent if the random index is out of range
-                print(f"[INFO] Skipping agent {agent_id}, random joint index {joint_index} is out of range.")
+    #             print(f"[INFO] Locked joint {joint_name} (index {joint_index}) for agent {agent_id} at position {lock_position}.")
+    #         else:
+    #             # Log or skip the agent if the random index is out of range
+    #             print(f"[INFO] Skipping agent {agent_id}, random joint index {joint_index} is out of range.")
 
 
     # create runner from rsl-rl
