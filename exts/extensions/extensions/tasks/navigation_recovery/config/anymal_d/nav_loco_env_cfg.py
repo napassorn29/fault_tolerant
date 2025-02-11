@@ -115,14 +115,17 @@ class RewardsCfg:
     )
 
     # -- task
-    vel_xy_toggle = RewTerm(
-        func=mdp.vel_xy_toggle, 
-        weight=0.95, 
-        params={
-            "target_height": 0.45,
-            "command_name": "base_velocity", 
-            "std": math.sqrt(0.25)
-            }
+    # vel_xy_toggle = RewTerm(
+    #     func=mdp.vel_xy_toggle, 
+    #     weight=0.95, 
+    #     params={
+    #         "target_height": 0.45,
+    #         "command_name": "base_velocity", 
+    #         "std": math.sqrt(0.25)
+    #         }
+    # )
+    track_lin_vel_xy_exp = RewTerm(
+        func=mdp.track_lin_vel_xy_exp, weight=0.55, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     )
     # 0.75
     track_ang_vel_z_exp = RewTerm(
@@ -148,15 +151,15 @@ class RewardsCfg:
         weight=-1.0,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*THIGH"), "threshold": 1.0},
     )
-    base_height_exp_toggle = RewTerm(
-        func=mdp.base_height_exp_toggle,
-        weight=1.2,  # Set weight to 1.0 since it's now a toggle
-        params={
-            "target_height": 0.50,  # Adjust this if needed
-            # "asset_cfg": SceneEntityCfg("robot"),
-            "weight_exp_height": 1.0
-        },
-    )
+    # base_height_exp_toggle = RewTerm(
+    #     func=mdp.base_height_exp_toggle,
+    #     weight=1.2,  # Set weight to 1.0 since it's now a toggle
+    #     params={
+    #         "target_height": 0.50,  # Adjust this if needed
+    #         # "asset_cfg": SceneEntityCfg("robot"),
+    #         "weight_exp_height": 1.0
+    #     },
+    # )
     # -- optional penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
@@ -172,8 +175,8 @@ class CommandsCfg:
         resampling_time_range=(8.0, 8.0),
         debug_vis=True,
         ranges=mdp.UniformPose2dCommandCfg.Ranges(
-            pos_x=(-3.0, 3.0), 
-            pos_y=(-3.0, 3.0), 
+            pos_x=(-7.0, 7.0), 
+            pos_y=(-7.0, 7.0), 
             heading=(-math.pi, math.pi)
             ),
         )

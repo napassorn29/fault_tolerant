@@ -1,0 +1,245 @@
+--- git status ---
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+	modified:   scripts/rsl_rl/play.py
+	modified:   scripts/rsl_rl/train.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/events.out.tfevents.1737709400.fibo3.345669.0
+	logs/rsl_rl/anymal_d_flat/2025-01-27_18-12-01/events.out.tfevents.1737976344.fibo3.520974.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-03_18-18-34/2025-02-10_16-02-55_data.csv
+	logs/rsl_rl/anymal_d_navigation/2025-02-03_18-18-34/exported/
+	logs/rsl_rl/anymal_d_navigation/2025-02-10_16-10-23/
+	outputs/2025-02-10/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+index 730d7b7c..c93828c4 100644
+Binary files a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+index 7042da3d..59c763ca 100644
+--- a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
++++ b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/nav_loco_env_cfg.py
+@@ -115,14 +115,17 @@ class RewardsCfg:
+     )
+ 
+     # -- task
+-    vel_xy_toggle = RewTerm(
+-        func=mdp.vel_xy_toggle, 
+-        weight=0.95, 
+-        params={
+-            "target_height": 0.45,
+-            "command_name": "base_velocity", 
+-            "std": math.sqrt(0.25)
+-            }
++    # vel_xy_toggle = RewTerm(
++    #     func=mdp.vel_xy_toggle, 
++    #     weight=0.95, 
++    #     params={
++    #         "target_height": 0.45,
++    #         "command_name": "base_velocity", 
++    #         "std": math.sqrt(0.25)
++    #         }
++    # )
++    track_lin_vel_xy_exp = RewTerm(
++        func=mdp.track_lin_vel_xy_exp, weight=0.55, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
+     )
+     # 0.75
+     track_ang_vel_z_exp = RewTerm(
+@@ -148,15 +151,15 @@ class RewardsCfg:
+         weight=-1.0,
+         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*THIGH"), "threshold": 1.0},
+     )
+-    base_height_exp_toggle = RewTerm(
+-        func=mdp.base_height_exp_toggle,
+-        weight=1.2,  # Set weight to 1.0 since it's now a toggle
+-        params={
+-            "target_height": 0.50,  # Adjust this if needed
+-            # "asset_cfg": SceneEntityCfg("robot"),
+-            "weight_exp_height": 1.0
+-        },
+-    )
++    # base_height_exp_toggle = RewTerm(
++    #     func=mdp.base_height_exp_toggle,
++    #     weight=1.2,  # Set weight to 1.0 since it's now a toggle
++    #     params={
++    #         "target_height": 0.50,  # Adjust this if needed
++    #         # "asset_cfg": SceneEntityCfg("robot"),
++    #         "weight_exp_height": 1.0
++    #     },
++    # )
+     # -- optional penalties
+     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
+     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
+diff --git a/scripts/rsl_rl/play.py b/scripts/rsl_rl/play.py
+index b06f1233..6a355007 100644
+--- a/scripts/rsl_rl/play.py
++++ b/scripts/rsl_rl/play.py
+@@ -52,8 +52,8 @@ import torch
+ import math
+ import omni.isaac.lab_tasks.manager_based.navigation.mdp as mdp
+ 
+-# import rclpy
+ import rclpy
++# import rclpy
+ from geometry_msgs.msg import Vector3
+ from rclpy.node import Node
+ import csv
+diff --git a/scripts/rsl_rl/train.py b/scripts/rsl_rl/train.py
+index b6c7a40c..11d42a3c 100644
+--- a/scripts/rsl_rl/train.py
++++ b/scripts/rsl_rl/train.py
+@@ -125,73 +125,73 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
+     ## ==================== setting joint locked ====================
+     ##
+ 
+-    # Modify joint limits after loading the robot
+-    robot = env.env.scene["robot"]  # Ensure the correct access path
+-
+-    # Access joint positions and joint names
+-    jointpos = robot._data.joint_pos
+-    jointname = robot._data.joint_names
+-
+-    # Mapping joint indices to their respective ranges
+-    joint_lock_ranges = {
+-        0: [-0.7854, 0.6109],
+-        1: [-0.7854, 0.6109],
+-        2: [-0.6109, 0.7854],
+-        3: [-0.6109, 0.7854],
+-        4: [-9.4248, 9.4248],
+-        5: [-9.4248, 9.4248],
+-        6: [-9.4248, 9.4248],
+-        7: [-9.4248, 9.4248],
+-        8: [-9.4248, 9.4248],
+-        9: [-9.4248, 9.4248],
+-        10: [-9.4248, 9.4248],
+-        11: [-9.4248, 9.4248]
+-    }
+-
+-    if robot is not None:
+-        # Get the device of the robot data
+-        device = robot._data.joint_limits.device  # Ensure this is the correct device reference
+-
+-        # Randomly select and lock one joint for each agent
+-        num_agents = 4096  # Assuming _num_envs gives the number of agents
+-        joint_names = robot.joint_names
+-        num_joints = len(joint_names)
+-
+-        # Generate random joint indices for locking (0 to num_joints+1)
+-        locked_joint_indices = torch.randint(0, num_joints + 2, (num_agents,))
+-
+-        for agent_id in range(num_agents):
+-            joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
+-
+-            if joint_index < num_joints:  # Only lock joints if the index is valid
+-                joint_name = joint_names[joint_index]  # Get the joint name for this index
+-
+-                # Check if the joint index has a specified range
+-                if joint_index in joint_lock_ranges:  # Use +1 if the mapping is 1-based
+-                    lock_range = joint_lock_ranges[joint_index]
+-                    lock_position = torch.empty(1).uniform_(*lock_range).item()  # Random position within range
+-                else:
+-                    # Default to the current position if no range is specified
+-                    lock_position = jointpos[agent_id, joint_index]
+-
+-                # Prepare limits
+-                limits = (lock_position, lock_position)  # Min and max are the same for locking
+-                limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
+-
+-                # Convert env_ids to a tensor
+-                env_id_tensor = torch.tensor([agent_id], dtype=torch.int32, device=device)
+-
+-                # Write joint limits to the simulation for the specific joint of this agent
+-                robot.write_joint_limits_to_sim(
+-                    limits=limit_tensor,  # Provide the limits tensor
+-                    joint_ids=[joint_index],  # Specify the joint index
+-                    env_ids=env_id_tensor  # Apply to the specific agent
+-                )
+-
+-                print(f"[INFO] Locked joint {joint_name} (index {joint_index}) for agent {agent_id} at position {lock_position}.")
+-            else:
+-                # Log or skip the agent if the random index is out of range
+-                print(f"[INFO] Skipping agent {agent_id}, random joint index {joint_index} is out of range.")
++    # # Modify joint limits after loading the robot
++    # robot = env.env.scene["robot"]  # Ensure the correct access path
++
++    # # Access joint positions and joint names
++    # jointpos = robot._data.joint_pos
++    # jointname = robot._data.joint_names
++
++    # # Mapping joint indices to their respective ranges
++    # joint_lock_ranges = {
++    #     0: [-0.7854, 0.6109],
++    #     1: [-0.7854, 0.6109],
++    #     2: [-0.6109, 0.7854],
++    #     3: [-0.6109, 0.7854],
++    #     4: [-9.4248, 9.4248],
++    #     5: [-9.4248, 9.4248],
++    #     6: [-9.4248, 9.4248],
++    #     7: [-9.4248, 9.4248],
++    #     8: [-9.4248, 9.4248],
++    #     9: [-9.4248, 9.4248],
++    #     10: [-9.4248, 9.4248],
++    #     11: [-9.4248, 9.4248]
++    # }
++
++    # if robot is not None:
++    #     # Get the device of the robot data
++    #     device = robot._data.joint_limits.device  # Ensure this is the correct device reference
++
++    #     # Randomly select and lock one joint for each agent
++    #     num_agents = 4096  # Assuming _num_envs gives the number of agents
++    #     joint_names = robot.joint_names
++    #     num_joints = len(joint_names)
++
++    #     # Generate random joint indices for locking (0 to num_joints+1)
++    #     locked_joint_indices = torch.randint(0, num_joints + 2, (num_agents,))
++
++    #     for agent_id in range(num_agents):
++    #         joint_index = locked_joint_indices[agent_id].item()  # Get the joint index for this agent
++
++    #         if joint_index < num_joints:  # Only lock joints if the index is valid
++    #             joint_name = joint_names[joint_index]  # Get the joint name for this index
++
++    #             # Check if the joint index has a specified range
++    #             if joint_index in joint_lock_ranges:  # Use +1 if the mapping is 1-based
++    #                 lock_range = joint_lock_ranges[joint_index]
++    #                 lock_position = torch.empty(1).uniform_(*lock_range).item()  # Random position within range
++    #             else:
++    #                 # Default to the current position if no range is specified
++    #                 lock_position = jointpos[agent_id, joint_index]
++
++    #             # Prepare limits
++    #             limits = (lock_position, lock_position)  # Min and max are the same for locking
++    #             limit_tensor = torch.tensor([limits], dtype=torch.float32, device=device)  # Shape (1, 2) for [min, max]
++
++    #             # Convert env_ids to a tensor
++    #             env_id_tensor = torch.tensor([agent_id], dtype=torch.int32, device=device)
++
++    #             # Write joint limits to the simulation for the specific joint of this agent
++    #             robot.write_joint_limits_to_sim(
++    #                 limits=limit_tensor,  # Provide the limits tensor
++    #                 joint_ids=[joint_index],  # Specify the joint index
++    #                 env_ids=env_id_tensor  # Apply to the specific agent
++    #             )
++
++    #             print(f"[INFO] Locked joint {joint_name} (index {joint_index}) for agent {agent_id} at position {lock_position}.")
++    #         else:
++    #             # Log or skip the agent if the random index is out of range
++    #             print(f"[INFO] Skipping agent {agent_id}, random joint index {joint_index} is out of range.")
+ 
+ 
+     # create runner from rsl-rl
