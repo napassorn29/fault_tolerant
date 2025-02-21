@@ -1,0 +1,26 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/events.out.tfevents.1737709400.fibo3.345669.0
+	logs/rsl_rl/anymal_d_flat/2025-01-27_18-12-01/events.out.tfevents.1737976344.fibo3.520974.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-10_16-10-23/events.out.tfevents.1739178634.fibo3.11310.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-11_14-45-11/
+	outputs/2025-02-11/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+index c93828c4..126a9874 100644
+Binary files a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc differ
