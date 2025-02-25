@@ -1,0 +1,45 @@
+--- git status ---
+On branch main
+Your branch is ahead of 'origin/main' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   exts/extensions/extensions/tasks/locomotion/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/locomotion_recovery/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc
+	modified:   exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/rsl_rl/anymal_d_flat/2025-01-17_15-41-29/events.out.tfevents.1737103301.fibo3.60261.0
+	logs/rsl_rl/anymal_d_flat/2025-01-23_18-19-02/events.out.tfevents.1737631165.fibo3.301498.0
+	logs/rsl_rl/anymal_d_flat/2025-01-24_16-02-57/events.out.tfevents.1737709400.fibo3.345669.0
+	logs/rsl_rl/anymal_d_flat/2025-01-27_18-12-01/events.out.tfevents.1737976344.fibo3.520974.0
+	logs/rsl_rl/anymal_d_flat/2025-02-25_13-16-34/
+	logs/rsl_rl/anymal_d_navigation/2025-02-10_16-10-23/events.out.tfevents.1739178634.fibo3.11310.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-11_14-45-11/events.out.tfevents.1739259921.fibo3.40385.0
+	logs/rsl_rl/anymal_d_navigation/2025-02-24_18-04-20/events.out.tfevents.1740395065.fibo3.90191.0
+	outputs/2025-02-25/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/exts/extensions/extensions/tasks/locomotion/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+index 8fe00a73..0eb9820a 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc
+index 508531a1..39803ad0 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc
+index 0f13e7ed..8a3f2e95 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/__pycache__/velocity_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc
+index b3394240..2fb07ac3 100644
+Binary files a/exts/extensions/extensions/tasks/locomotion_recovery/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/locomotion_recovery/velocity/config/anymal_d/__pycache__/flat_env_cfg.cpython-310.pyc differ
+diff --git a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc
+index 126a9874..5f3905cb 100644
+Binary files a/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc and b/exts/extensions/extensions/tasks/navigation_recovery/config/anymal_d/__pycache__/nav_loco_env_cfg.cpython-310.pyc differ
