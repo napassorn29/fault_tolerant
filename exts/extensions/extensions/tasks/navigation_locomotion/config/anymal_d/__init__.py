@@ -13,7 +13,7 @@ from . import agents, nav_loco_env_cfg
 
 gym.register(
     id="LegRobot-Navigation-Locomotion-Anymal-D",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": nav_loco_env_cfg.NavigationLocomotionEnvCfg,
@@ -24,7 +24,7 @@ gym.register(
 
 gym.register(
     id="LegRobot-Navigation-Locomotion-Anymal-D-Play",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": nav_loco_env_cfg.NavigationLocomotionEnvCfg_PLAY,

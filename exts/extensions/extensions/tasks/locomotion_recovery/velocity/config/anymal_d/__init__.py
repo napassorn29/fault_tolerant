@@ -8,7 +8,7 @@ from . import agents, flat_env_cfg, rough_env_cfg
 
 gym.register(
     id="LegRobot-Velocity-Flat-Recovery-Anymal-D",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.AnymalDFlatRecoveryEnvCfg,
@@ -18,7 +18,7 @@ gym.register(
 
 gym.register(
     id="LegRobot-Velocity-Flat-Recovery-Anymal-D-Play",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.AnymalDFlatRecoveryEnvCfg_PLAY,
@@ -28,7 +28,7 @@ gym.register(
 
 gym.register(
     id="LegRobot-Velocity-Rough-Recovery-Anymal-D",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.AnymalDRoughRecoveryEnvCfg,
@@ -38,7 +38,7 @@ gym.register(
 
 gym.register(
     id="LegRobot-Velocity-Rough-Recovery-Anymal-D-Play",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.AnymalDRoughRecoveryEnvCfg_PLAY,

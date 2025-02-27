@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: extensions
 Version: 0.1.0
 Summary: Extension Template for Isaac Lab
@@ -12,3 +12,13 @@ Classifier: Programming Language :: Python :: 3.10
 Classifier: Isaac Sim :: 2023.1.1
 Classifier: Isaac Sim :: 4.0.0
 Requires-Python: >=3.10
+Requires-Dist: psutil
+Dynamic: author
+Dynamic: classifier
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: maintainer
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

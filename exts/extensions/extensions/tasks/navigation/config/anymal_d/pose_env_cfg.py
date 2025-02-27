@@ -1,11 +1,11 @@
-from omni.isaac.lab.utils import configclass
+from isaaclab.utils import configclass
 
 from extensions.tasks.navigation.config.anymal_d.navigation_env_cfg import NavigationCommandEnvCfg
 
 ##
 # Pre-defined configs
 ##
-from omni.isaac.lab_assets.anymal import ANYMAL_D_CFG  # isort: skip
+from isaaclab_assets.robots.anymal import ANYMAL_D_CFG  # isort: skip
 
 @configclass
 class NavigationEnvCfg(NavigationCommandEnvCfg):
