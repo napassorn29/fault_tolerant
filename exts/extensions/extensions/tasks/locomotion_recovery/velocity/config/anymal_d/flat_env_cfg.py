@@ -2,6 +2,13 @@ from isaaclab.utils import configclass
 
 from .rough_env_cfg import AnymalDRoughRecoveryEnvCfg
 
+from isaaclab.utils.math import quat_from_euler_xyz
+import math
+import torch
+from isaaclab.assets import ArticulationCfg
+from isaaclab.managers import EventTermCfg as EventTerm
+import extensions.tasks.locomotion.velocity.mdp as mdp
+
 
 @configclass
 class AnymalDFlatRecoveryEnvCfg(AnymalDRoughRecoveryEnvCfg):
@@ -36,3 +43,20 @@ class AnymalDFlatRecoveryEnvCfg_PLAY(AnymalDFlatRecoveryEnvCfg):
         # remove random pushing
         self.events.base_external_force_torque = None
         self.events.push_robot = None
+
+
+        self.commands.base_velocity = mdp.UniformVelocityCommandCfg(
+            asset_name="robot",
+            resampling_time_range=(10.0, 10.0),
+            rel_standing_envs=0.02, 
+            rel_heading_envs=1.0,
+            heading_command=True,
+            heading_control_stiffness=0.5,
+            debug_vis=True,
+            ranges=mdp.UniformVelocityCommandCfg.Ranges(
+                lin_vel_x=(float(0.7), float(0.7)), # Set fixed x velocity
+                lin_vel_y=(float(0), float(0)), # Set fixed y velocity
+                ang_vel_z=(0, 0), # Set fixed z velocity
+                heading=(math.pi, math.pi)
+            ),
+        )
