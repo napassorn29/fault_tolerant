@@ -112,30 +112,23 @@ def main():
     ppo_runner.log_dir = log_dir
 
     # Online Adaptation Loop
-    trigger = 1  # Initially in inference mode
+    trigger = 0  # Initially in inference mode
     obs, _ = env.get_observations()
+    time = 0
     while simulation_app.is_running():
         if trigger == 0:
             with torch.inference_mode():
                 actions = policy(obs)
-        # else:
-        #     # Switch to training mode
-        #     actions = ppo_runner.alg.actor_critic.act(obs)
-        #     ppo_runner.learn(num_learning_iterations=500, init_at_random_ep_len=False)
-        #     policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
-        #     ppo_runner.save(os.path.join(log_dir, "latest_policy.pth"))  # Save the newest policy
-        #     ppo_runner.load(os.path.join(log_dir, "latest_policy.pth"))  # Load the newest policy
-        
+                obs, _, _, _ = env.step(actions)
 
         else:
-            # Switch to training mode
-            actions = ppo_runner.alg.actor_critic.act(obs)
             ppo_runner.learn(num_learning_iterations=5000, init_at_random_ep_len=False)
             policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
         
-        # obs, _, _, _ = env.step(actions)
-
-        # obs, _, _, _ = env.step(actions)
+        print("time:", time, "trigger:", trigger)
+        time += 1 
+        if time == 200:
+            trigger = 1
 
     # Close simulation
     env.close()
@@ -145,78 +138,3 @@ if __name__ == "__main__":
     main()
     # close sim app
     simulation_app.close()
-
-
-# def main():
-#     # Initialize environment
-#     env_cfg = parse_env_cfg(
-#         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
-#     )
-#     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
-    
-#     env_cfg.seed = agent_cfg.seed
-#     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
-
-#     log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
-#     log_root_path = os.path.abspath(log_root_path)
-#     print(f"[INFO] Loading experiment from directory: {log_root_path}")
-#     resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
-#     log_dir = os.path.dirname(resume_path)
-
-#     env = gym.make(args_cli.task, cfg=env_cfg)
-#     if isinstance(env.unwrapped, DirectMARLEnv):
-#         env = multi_agent_to_single_agent(env)
-
-#     env = RslRlVecEnvWrapper(env)
-    
-#     # Load pre-trained policy
-#     ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=args_cli.device)
-    
-#     ppo_runner.add_git_repo_to_log(__file__)
-#     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
-#     ppo_runner.load(resume_path)
-#     policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
-
-#     # Training setup
-#     log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation")
-#     os.makedirs(log_dir, exist_ok=True)
-#     ppo_runner.log_dir = log_dir
-
-#     # Online Adaptation Loop
-#     trigger = 1  # Initially in inference mode
-#     obs, _ = env.get_observations()
-#     while simulation_app.is_running():
-#         if trigger == 0:
-#             with torch.inference_mode():
-#                 actions = policy(obs)
-#         else:
-#             # # Switch to training mode
-#             # actions = ppo_runner.alg.actor_critic.act(obs)
-#             # ppo_runner.learn(num_learning_iterations=5, init_at_random_ep_len=False)
-#             # policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
-#             # # Switch to training mode
-#             # actions = ppo_runner.alg.actor_critic.act(obs)
-#             # ppo_runner.learn(num_learning_iterations=5, init_at_random_ep_len=False)
-#             # policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
-#             # ppo_runner.save(os.path.join(log_dir, "latest_policy.pth"))  # Save the newest policy
-#             # ppo_runner.load(os.path.join(log_dir, "latest_policy.pth"))  # Load the newest policy
-
-#             actions = ppo_runner.alg.actor_critic.act(obs)
-#             ppo_runner.learn(num_learning_iterations=2, init_at_random_ep_len=False)
-            
-#             # Save and reload the newest policy
-#             latest_policy_path = os.path.join(log_dir, "latest_policy.pth")
-#             ppo_runner.save(latest_policy_path)  
-#             ppo_runner.load(latest_policy_path)  
-#             policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)  # Refresh policy
-        
-#         # obs, _, _, _ = env.step(actions)
-
-#     # Close simulation
-#     env.close()
-
-# if __name__ == "__main__":
-#     # run the main function
-#     main()
-#     # close sim app
-#     simulation_app.close()
