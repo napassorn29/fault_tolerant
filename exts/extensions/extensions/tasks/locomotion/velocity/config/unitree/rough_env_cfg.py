@@ -1,4 +1,4 @@
-from omni.isaac.lab.utils import configclass
+from isaaclab.utils import configclass
 
 from extensions.tasks.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg
 
@@ -6,7 +6,7 @@ from extensions.tasks.locomotion.velocity.velocity_env_cfg import LocomotionVelo
 # Pre-defined configs
 ##
 
-from isaaclab_assets.robots.anymal import UNITREE_GO2_CFG  # isort: skip
+from isaaclab_assets.robots.unitree import UNITREE_GO2_CFG  # isort: skip
 
 @configclass
 class UnitreeRoughRecoveryEnvCfg(LocomotionVelocityRoughEnvCfg):

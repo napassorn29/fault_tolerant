@@ -5,10 +5,13 @@ from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.sensors import ContactSensor
+from isaaclab.managers.manager_base import ManagerTermBase
+from isaaclab.managers.manager_term_cfg import RewardTermCfg
+from isaaclab.sensors import ContactSensor, RayCaster
+import isaaclab.utils.math as math_utils
 
 if TYPE_CHECKING:
-    from isaaclab.envs import ManagerBasedRLEnv
+    from omni.isaac.lab.envs import ManagerBasedRLEnv
 
 
 def feet_air_time(

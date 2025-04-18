@@ -38,7 +38,7 @@ class AnymalDFlatEnvCfg_PLAY(AnymalDFlatEnvCfg):
         self.events.push_robot = None
 
 
-class AnymalDFlatRecoveryEnvCfg(AnymalDRoughRecoveryEnvCfg):
+class AnymalDFlatRecoveryEnvCfg(AnymalDRoughEnvCfg):
     foot_link_name = ".*_FOOT"
     def __post_init__(self):
         # post init of parent
