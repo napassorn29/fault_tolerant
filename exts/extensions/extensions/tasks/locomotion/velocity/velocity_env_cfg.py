@@ -133,6 +133,7 @@ class ObservationsCfg:
             noise=Unoise(n_min=-0.1, n_max=0.1),
             clip=(-1.0, 1.0),
         )
+        joint_status = ObsTerm(func=mdp.joint_status,)
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -219,18 +220,35 @@ class RewardsCfg:
     """Reward terms for the MDP."""
 
     # -- task
-    track_lin_vel_xy_exp = RewTerm(
-        func=mdp.track_lin_vel_xy_exp, weight=1.0, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
+    # track_lin_vel_xy_exp = RewTerm(
+    #     func=mdp.track_lin_vel_xy_exp, weight=1.1, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
+    # )
+
+    vel_xy_toggle = RewTerm(
+        func=mdp.vel_xy_toggle, 
+        weight=3.0, 
+        params={
+            "target_height": 0.22, #0.42
+            "command_name": "base_velocity", 
+            "std": math.sqrt(0.25)
+            }
     )
+
     track_ang_vel_z_exp = RewTerm(
         func=mdp.track_ang_vel_z_exp, weight=0.5, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
     )
+
     # -- penalties
     lin_vel_z_l2 = RewTerm(func=mdp.lin_vel_z_l2, weight=-2.0)
+
     ang_vel_xy_l2 = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)
+
     dof_torques_l2 = RewTerm(func=mdp.joint_torques_l2, weight=-1.0e-5)
+
     dof_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)
+
     action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
+
     feet_air_time = RewTerm(
         func=mdp.feet_air_time,
         weight=0.125,
@@ -240,11 +258,108 @@ class RewardsCfg:
             "threshold": 0.5,
         },
     )
+
     undesired_contacts = RewTerm(
         func=mdp.undesired_contacts,
         weight=-1.0,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*THIGH"), "threshold": 1.0},
     )
+
+    base_height_l2 = RewTerm(
+        func=mdp.base_height_l2,
+        weight=-3.0, #-10.0
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+            "sensor_cfg": SceneEntityCfg("height_scanner"),
+            "target_height": 0.3,
+        },
+    )
+
+    joint_pos_limits = RewTerm(
+        func=mdp.joint_pos_limits, weight=-5.0, params={"asset_cfg": SceneEntityCfg("robot", joint_names=".*")}
+    )
+
+    joint_power = RewTerm(
+        func=mdp.joint_power,
+        weight= -2e-5,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
+        },
+    )
+    
+    feet_stumble = RewTerm(
+        func=mdp.feet_stumble,
+        weight=-0.1,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=""),
+        },
+    )
+
+    feet_slide = RewTerm(
+        func=mdp.feet_slide,
+        weight=-0.1,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=""),
+            "asset_cfg": SceneEntityCfg("robot", body_names=""),
+        },
+    )
+
+    feet_height_body = RewTerm(
+        func=mdp.feet_height_body,
+        weight=-5.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=""),
+            "tanh_mult": 2.0,
+            "target_height": -0.3,
+            "command_name": "base_velocity",
+        },
+    )
+
+    upward = RewTerm(
+        func=mdp.upward,
+        weight=1.0,
+        params={
+            "std": math.sqrt(0.5),
+        },
+    )
+
+    joint_mirror = RewTerm(
+        func=mdp.joint_mirror,
+        weight=0.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot"),
+            "mirror_joints": [["FR.*", "RL.*"], ["FL.*", "RR.*"]],
+        },
+    )
+
+    # base_height_l2_notsensor = RewTerm(
+    #     func=mdp.base_height_l2_notsensor,
+    #     weight=-3.0,  # Set weight to 1.4 since it's now a toggle
+    #     params={
+    #         "target_height": 0.47,  # Adjust this if needed
+    #         # "asset_cfg": SceneEntityCfg("robot"),
+    #         "weight_exp_height": 1.0
+    #     },
+    # )
+
+    base_height_exp_toggle = RewTerm(
+        func=mdp.base_height_exp_toggle,
+        weight=3.5,  # Set weight to 1.4 since it's now a toggle
+        params={
+            "target_height": 0.25,  # Adjust this if needed 0.47
+            # "asset_cfg": SceneEntityCfg("robot"),
+            "weight_exp_height": 1.0
+        },
+    )
+
+    upright_orientation = RewTerm(
+        func=mdp.upright_orientation,
+        weight=0.25,
+        params={
+            "epsilon": 0.1,  # Adjust as needed
+        },
+    )
+
     # -- optional penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
@@ -255,6 +370,7 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
+    
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
