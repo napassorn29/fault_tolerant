@@ -16,6 +16,7 @@ from isaaclab.app import AppLauncher
 import cli_args  # isort: skip
 from datetime import datetime
 
+
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
@@ -81,6 +82,23 @@ torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
 torch.backends.cudnn.benchmark = False
 
+# class RewardPrintWrapper(RslRlVecEnvWrapper):
+#     """Wraps RslRlVecEnvWrapper to print per-term rewards every step in training."""
+#     def step(self, actions: torch.Tensor):
+#         obs, rew, dones, extras = super().step(actions)
+#         for name, term in extras.get("log", {}).items():
+#             if isinstance(term, torch.Tensor):
+#                 v = term.mean().item()
+#             else:
+#                 try:
+#                     v = float(term)
+#                 except Exception:
+#                     v = term
+#             print(f"[TRAIN STEP] {name:<30s}: {v:.6f}" if isinstance(v, (float, int))
+#                   else f"[TRAIN STEP] {name:<30s}: {v}")
+#         return obs, rew, dones, extras
+
+
 def main():
     # Initialize environment
     env_cfg = parse_env_cfg(
@@ -105,7 +123,10 @@ def main():
     env = RslRlVecEnvWrapper(env)
     
     # Load pre-trained policy
-    ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=args_cli.device)
+    log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation4")
+    os.makedirs(log_dir, exist_ok=True)
+
+    ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=args_cli.device)
     ppo_runner.add_git_repo_to_log(__file__)
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
     ppo_runner.load(resume_path)
@@ -121,10 +142,10 @@ def main():
     except AttributeError:
         pass  # Ignore if not an RNN model
 
-    # Training setup
-    log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation4")
-    os.makedirs(log_dir, exist_ok=True)
-    ppo_runner.log_dir = log_dir
+    # # Training setup
+    # log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation4")
+    # os.makedirs(log_dir, exist_ok=True)
+    # ppo_runner.log_dir = log_dir
 
     # Online Adaptation Loop
     time_step = 0
@@ -135,6 +156,8 @@ def main():
 
     # Fix: Ensure correct access to the robot object
     robot = robot = env.unwrapped.scene["robot"]
+    # robot_reward = env.unwrapped.rewards
+    robot_reward_cfg = env.unwrapped.cfg.rewards
     
     if robot is None:
         print("[ERROR] Robot object not found in the environment.")
@@ -150,8 +173,9 @@ def main():
         jointpos_p = jointpos_n
         jointpos_n = robot._data.joint_pos[0, :].tolist()
 
-        fault_time = 200
+        fault_time = 100
         trigger2 = trigger1
+        # print("reward : ", robot_reward_cfg["vel_xy_toggle"])
         if time_step == fault_time:
             # trigger = 1
             jointpos = robot._data.joint_pos
@@ -188,8 +212,45 @@ def main():
                 obs, _, _, _ = env.step(actions)
  
         else:
-            ppo_runner.learn_iter(num_learning_iterations=5000, init_at_random_ep_len=False)
+            print("log_dir :", ppo_runner.log_dir)
+            ppo_runner.learn_iter1(num_learning_iterations=5000, init_at_random_ep_len=False)
             policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
+
+        # if trigger == 0:
+        #     # inference phase
+        #     with torch.inference_mode():
+        #         actions = policy(obs)
+        #         # unpack the 4‐tuple from your wrapper.step()
+        #         obs, reward, dones, extras = env.step(actions)
+
+        #     # # ** NEW: print every reward term every fixed timestep **
+        #     # for name, term_tensor in extras.get("log", {}).items():
+        #     #     # average across vectorized envs
+        #     #     val = term_tensor.mean().item()
+        #     #     print(f"[Step {time_step:4d}] {name:<30s}: {val:.6f}")
+
+        #     for name, term_val in extras.get("log", {}).items():
+        #         # if this term is a tensor, average across envs; if it's a float/int, just cast
+        #         if isinstance(term_val, torch.Tensor):
+        #             val = term_val.mean().item()
+        #         else:
+        #             # covers floats, ints, and anything castable to float
+        #             try:
+        #                 val = float(term_val)
+        #             except Exception:
+        #                 val = term_val  # fallback: just print raw
+        #         print(f"[Step {time_step:4d}] {name:<30s}: {val:.6f}" if isinstance(val, (float, int)) 
+        #               else f"[Step {time_step:4d}] {name:<30s}: {val}")
+
+        #     # handle resets if any sub‐env terminated
+        #     if dones.any():
+        #         obs, _ = env.reset_done(dones)
+
+        # else:
+        #     # adaptation phase (unchanged)
+        #     print("Starting adaptation...")
+        #     ppo_runner.learn_iter1(5000, init_at_random_ep_len=False)
+        #     policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
 
 
 if __name__ == "__main__":
