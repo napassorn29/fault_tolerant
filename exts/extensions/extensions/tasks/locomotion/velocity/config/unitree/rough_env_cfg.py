@@ -18,35 +18,42 @@ class UnitreeRoughRecoveryEnvCfg(LocomotionVelocityRoughEnvCfg):
         # switch robot to anymal-d
         self.scene.robot = UNITREE_GO2_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         
-        self.rewards.joint_pos_limits.weight = -0.1
-        self.rewards.joint_power.weight = -2e-5
+        self.rewards.joint_pos_limits.weight = -0.1 # -0.1
+        self.rewards.joint_power.weight = -2e-5 # -0.1
 
-        self.rewards.joint_mirror.weight = -0.1
+        self.rewards.stand_still_without_cmd.weight = -0.5 # -2.0
+
+
+        self.rewards.joint_mirror.weight = -0.1 # -0.1 
         self.rewards.joint_mirror.params["mirror_joints"] = [
             ["FR_(hip|thigh|calf).*", "RL_(hip|thigh|calf).*"],
             ["FL_(hip|thigh|calf).*", "RR_(hip|thigh|calf).*"],
         ]
 
         # Action penalties
-        self.rewards.action_rate_l2.weight = -0.015
+        self.rewards.action_rate_l2.weight = -0.015 # -0.015
 
         # Contact sensor
-        self.rewards.undesired_contacts.weight = -1.0
+        self.rewards.undesired_contacts.weight = -1.0 # -1.0
         self.rewards.undesired_contacts.params["sensor_cfg"].body_names = [f"^(?!.*{self.foot_link_name}).*"]
 
         # self.rewards.track_lin_vel_xy_exp.weight = 3.0
-        self.rewards.track_ang_vel_z_exp.weight = 1.5
+        self.rewards.track_ang_vel_z_exp.weight = 1.5 # 1.5
 
         # Others
-        self.rewards.feet_air_time.weight = 0.5
+        self.rewards.feet_air_time.weight = 0.5 # 0.5
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = [self.foot_link_name]
-        self.rewards.feet_stumble.weight = -0.1
+
+        self.rewards.feet_contact_without_cmd.weight = -0.1 # 0.1
+        self.rewards.feet_contact_without_cmd.params["sensor_cfg"].body_names = [self.foot_link_name]
+
+        self.rewards.feet_stumble.weight = -0.1 # -0.1
         self.rewards.feet_stumble.params["sensor_cfg"].body_names = [self.foot_link_name]
-        self.rewards.feet_slide.weight = -0.05
+        self.rewards.feet_slide.weight = -0.05 # -0.05
         self.rewards.feet_slide.params["sensor_cfg"].body_names = [self.foot_link_name]
         self.rewards.feet_slide.params["asset_cfg"].body_names = [self.foot_link_name]
         # self.rewards.feet_height_body.weight = -5.0
-        self.rewards.feet_height_body.weight = -0.5
+        self.rewards.feet_height_body.weight = -0.5 # -0.5
         self.rewards.feet_height_body.params["target_height"] = -0.2
         self.rewards.feet_height_body.params["asset_cfg"].body_names = [self.foot_link_name]
         self.rewards.upward.weight = 0.0 #0.5

@@ -25,8 +25,8 @@ class UnitreeFlatRecoveryEnvCfg(UnitreeRoughRecoveryEnvCfg):
         self.scene.terrain.terrain_type = "plane"
         self.scene.terrain.terrain_generator = None
         # no height scan
-        # self.scene.height_scanner = None
-        # self.observations.policy.height_scan = None
+        self.scene.height_scanner = None
+        self.observations.policy.height_scan = None
         # no terrain curriculum
         self.curriculum.terrain_levels = None
 
@@ -55,7 +55,7 @@ class UnitreeFlatRecoveryEnvCfg_PLAY(UnitreeFlatRecoveryEnvCfg):
             heading_control_stiffness=0.5,
             debug_vis=True,
             ranges=mdp.UniformVelocityCommandCfg.Ranges(
-                lin_vel_x=(float(0.7), float(0.7)), # Set fixed x velocity
+                lin_vel_x=(float(0.7), float(0.7)), # Set fixed x velocity 0.7, 0.7
                 lin_vel_y=(float(0), float(0)), # Set fixed y velocity
                 ang_vel_z=(0, 0), # Set fixed z velocity
                 heading=(math.pi, math.pi)

@@ -31,6 +31,10 @@ parser.add_argument("--log_path", type=str, default=datetime.now().strftime("%Y-
 parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
+parser.add_argument(
+    "--resume_model_path", type=str, default=None,
+    help="If set, skip the auto-lookup and load this exact .pt file."
+)
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -82,22 +86,19 @@ torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
 torch.backends.cudnn.benchmark = False
 
-# class RewardPrintWrapper(RslRlVecEnvWrapper):
-#     """Wraps RslRlVecEnvWrapper to print per-term rewards every step in training."""
-#     def step(self, actions: torch.Tensor):
-#         obs, rew, dones, extras = super().step(actions)
-#         for name, term in extras.get("log", {}).items():
-#             if isinstance(term, torch.Tensor):
-#                 v = term.mean().item()
-#             else:
-#                 try:
-#                     v = float(term)
-#                 except Exception:
-#                     v = term
-#             print(f"[TRAIN STEP] {name:<30s}: {v:.6f}" if isinstance(v, (float, int))
-#                   else f"[TRAIN STEP] {name:<30s}: {v}")
-#         return obs, rew, dones, extras
-
+# def evaluate_policy(env, policy, episodes: int = 5) -> float:
+#     total_reward = 0.0
+#     for _ in range(episodes):
+#         obs, _ = env.reset()
+#         done = False
+#         ep_reward = 0.0
+#         while not done:
+#             with torch.inference_mode():
+#                 action = policy(obs.to(env.device))
+#                 obs, reward, done, _ = env.step(action)
+#             ep_reward += reward.mean().item()
+#         total_reward += ep_reward
+#     return total_reward / episodes
 
 def main():
     # Initialize environment
@@ -112,8 +113,23 @@ def main():
     log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
     log_root_path = os.path.abspath(log_root_path)
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
-    resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+
+    # log_dir_re = os.path.join(log_root_path, args_cli.load_run, "adaptation_05_05_j7_2")
+    resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run , agent_cfg.load_checkpoint)
+    # resume_path = get_checkpoint_path(log_dir_re , agent_cfg.load_checkpoint)
     log_dir = os.path.dirname(resume_path)
+
+    # # <<< CHANGED: new resume logic
+    # if args_cli.resume_model_path:
+    #     resume_path = args_cli.resume_model_path  # <<< CHANGED
+    # else:
+    #     log_dir_re = os.path.join(log_root_path, args_cli.load_run, "adaptation_05_05_j7_2")  # <<< CHANGED
+    #     resume_path = get_checkpoint_path(log_dir_re, agent_cfg.load_checkpoint)  # <<< CHANGED
+
+    # if not os.path.isfile(resume_path):  # <<< CHANGED
+    #     raise FileNotFoundError(f"Checkpoint not found: {resume_path}")  # <<< CHANGED
+
+    # log_dir = os.path.dirname(resume_path)  # <<< CHANGED: use containing folder as log_dir
 
     env = gym.make(args_cli.task, cfg=env_cfg)
     
@@ -123,7 +139,7 @@ def main():
     env = RslRlVecEnvWrapper(env)
     
     # Load pre-trained policy
-    log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation4")
+    log_dir = os.path.join(log_root_path, args_cli.load_run, "adaptation_08_05_j7_0")
     os.makedirs(log_dir, exist_ok=True)
 
     ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=args_cli.device)
@@ -167,6 +183,8 @@ def main():
     jointpos_p2 = init_pos
     jointpos_p = init_pos
     jointpos_n = robot._data.joint_pos[0, :].tolist()
+    training_started = False
+    training_done = False
 
     while simulation_app.is_running():
         jointpos_p2 = jointpos_p
@@ -179,8 +197,9 @@ def main():
         if time_step == fault_time:
             # trigger = 1
             jointpos = robot._data.joint_pos
+            # name_joint = ['FL_hip_joint', 'FR_hip_joint', 'RL_hip_joint', 'RR_hip_joint', 'FL_thigh_joint', 'FR_thigh_joint', 'RL_thigh_joint', 'RR_thigh_joint', 'FL_calf_joint', 'FR_calf_joint', 'RL_calf_joint', 'RR_calf_joint']
             joint_limits = {
-                'FL_hip_joint': (jointpos[:, 0], jointpos[:, 0]),  # Example joint lock
+                'RR_thigh_joint': (jointpos[:, 7], jointpos[:, 7]),  # Example joint lock
             }
 
             device = robot._data.joint_limits.device
@@ -206,50 +225,38 @@ def main():
 
         time_step += 1
 
-        if trigger == 0:
+        if trigger == 0 and not training_done:
+            # Phase 1: inference only
             with torch.inference_mode():
                 actions = policy(obs)
                 obs, _, _, _ = env.step(actions)
- 
-        else:
-            print("log_dir :", ppo_runner.log_dir)
-            ppo_runner.learn_iter1(num_learning_iterations=5000, init_at_random_ep_len=False)
+
+        elif trigger == 1 and not training_done:
+            # Phase 2: training
+            if not training_started:
+                print(f"[INFO] Starting training at step {time_step}")
+                training_started = True
+            # train for a batch
+            ppo_runner.learn_iter1(num_learning_iterations=1, init_at_random_ep_len=False)
             policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
+            # evaluate
+            # mean_r = evaluate_policy(env, policy, episodes=3)
+            # print(f"[INFO] Eval mean_reward={mean_r:.2f}")
+            total_reward = ppo_runner.tot_reward
+            if total_reward > 0.0:
+                training_done = True
+            #     print("[INFO] Reward > 0: switching to inference")
 
-        # if trigger == 0:
-        #     # inference phase
-        #     with torch.inference_mode():
-        #         actions = policy(obs)
-        #         # unpack the 4‐tuple from your wrapper.step()
-        #         obs, reward, dones, extras = env.step(actions)
-
-        #     # # ** NEW: print every reward term every fixed timestep **
-        #     # for name, term_tensor in extras.get("log", {}).items():
-        #     #     # average across vectorized envs
-        #     #     val = term_tensor.mean().item()
-        #     #     print(f"[Step {time_step:4d}] {name:<30s}: {val:.6f}")
-
-        #     for name, term_val in extras.get("log", {}).items():
-        #         # if this term is a tensor, average across envs; if it's a float/int, just cast
-        #         if isinstance(term_val, torch.Tensor):
-        #             val = term_val.mean().item()
-        #         else:
-        #             # covers floats, ints, and anything castable to float
-        #             try:
-        #                 val = float(term_val)
-        #             except Exception:
-        #                 val = term_val  # fallback: just print raw
-        #         print(f"[Step {time_step:4d}] {name:<30s}: {val:.6f}" if isinstance(val, (float, int)) 
-        #               else f"[Step {time_step:4d}] {name:<30s}: {val}")
-
-        #     # handle resets if any sub‐env terminated
-        #     if dones.any():
-        #         obs, _ = env.reset_done(dones)
-
+        else:
+            # Phase 3: post-training inference
+            with torch.inference_mode():
+                action = policy(obs)
+                obs, _, _, _ = env.step(action)
+            print(f"[Step {time_step}] Phase3: inference")
+ 
         # else:
-        #     # adaptation phase (unchanged)
-        #     print("Starting adaptation...")
-        #     ppo_runner.learn_iter1(5000, init_at_random_ep_len=False)
+        #     print("log_dir :", ppo_runner.log_dir)
+        #     ppo_runner.learn_iter1(num_learning_iterations=1, init_at_random_ep_len=False)
         #     policy = ppo_runner.get_inference_policy(device=env.unwrapped.device)
 
 

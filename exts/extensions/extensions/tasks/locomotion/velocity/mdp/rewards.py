@@ -498,3 +498,94 @@ def joint_mirror(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg, mirror_joint
     reward = 0.5 * (diff1 + diff2)
     reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
     return reward
+
+def stand_still_without_cmd(
+    env: ManagerBasedRLEnv,
+    command_name: str,
+    command_threshold: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Penalize joint positions that deviate from the default one when no command."""
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    # compute out of limits constraints
+    diff_angle = asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+    reward = torch.sum(torch.abs(diff_angle), dim=1)
+    reward *= torch.linalg.norm(env.command_manager.get_command(command_name), dim=1) < command_threshold
+    reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
+    return reward
+
+def feet_contact_without_cmd(env: ManagerBasedRLEnv, command_name: str, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
+    """Reward feet contact"""
+    # extract the used quantities (to enable type-hinting)
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    # compute the reward
+    contact = contact_sensor.compute_first_contact(env.step_dt)[:, sensor_cfg.body_ids]
+    reward = torch.sum(contact, dim=-1).float()
+    reward *= torch.linalg.norm(env.command_manager.get_command(command_name), dim=1) < 0.1
+    reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
+    return reward
+
+def feet_distance_y_exp(
+    env: ManagerBasedRLEnv, stance_width: float, std: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    asset: RigidObject = env.scene[asset_cfg.name]
+    cur_footsteps_translated = asset.data.body_link_pos_w[:, asset_cfg.body_ids, :] - asset.data.root_link_pos_w[
+        :, :
+    ].unsqueeze(1)
+    footsteps_in_body_frame = torch.zeros(env.num_envs, 4, 3, device=env.device)
+    for i in range(4):
+        footsteps_in_body_frame[:, i, :] = math_utils.quat_apply(
+            math_utils.quat_conjugate(asset.data.root_link_quat_w), cur_footsteps_translated[:, i, :]
+        )
+    stance_width_tensor = stance_width * torch.ones([env.num_envs, 1], device=env.device)
+    desired_ys = torch.cat(
+        [stance_width_tensor / 2, -stance_width_tensor / 2, stance_width_tensor / 2, -stance_width_tensor / 2], dim=1
+    )
+    stance_diff = torch.square(desired_ys - footsteps_in_body_frame[:, :, 1])
+    reward = torch.exp(-torch.sum(stance_diff, dim=1) / std**2)
+    reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
+    return reward
+
+
+def feet_distance_xy_exp(
+    env: ManagerBasedRLEnv,
+    stance_width: float,
+    stance_length: float,
+    std: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    asset: RigidObject = env.scene[asset_cfg.name]
+
+    # Compute the current footstep positions relative to the root
+    cur_footsteps_translated = asset.data.body_link_pos_w[:, asset_cfg.body_ids, :] - asset.data.root_link_pos_w[
+        :, :
+    ].unsqueeze(1)
+
+    footsteps_in_body_frame = torch.zeros(env.num_envs, 4, 3, device=env.device)
+    for i in range(4):
+        footsteps_in_body_frame[:, i, :] = math_utils.quat_apply(
+            math_utils.quat_conjugate(asset.data.root_link_quat_w), cur_footsteps_translated[:, i, :]
+        )
+
+    # Desired x and y positions for each foot
+    stance_width_tensor = stance_width * torch.ones([env.num_envs, 1], device=env.device)
+    stance_length_tensor = stance_length * torch.ones([env.num_envs, 1], device=env.device)
+
+    desired_xs = torch.cat(
+        [stance_length_tensor / 2, stance_length_tensor / 2, -stance_length_tensor / 2, -stance_length_tensor / 2],
+        dim=1,
+    )
+    desired_ys = torch.cat(
+        [stance_width_tensor / 2, -stance_width_tensor / 2, stance_width_tensor / 2, -stance_width_tensor / 2], dim=1
+    )
+
+    # Compute differences in x and y
+    stance_diff_x = torch.square(desired_xs - footsteps_in_body_frame[:, :, 0])
+    stance_diff_y = torch.square(desired_ys - footsteps_in_body_frame[:, :, 1])
+
+    # Combine x and y differences and compute the exponential penalty
+    stance_diff = stance_diff_x + stance_diff_y
+    reward = torch.exp(-torch.sum(stance_diff, dim=1) / std**2)
+    reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
+    return reward
